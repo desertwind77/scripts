@@ -1,0 +1,7 @@
+flake8
+ghp-import
+pytest
+sphinx
+sphinx_rtd_theme
+colorama
+pyyaml
