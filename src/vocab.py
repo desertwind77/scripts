@@ -18,7 +18,7 @@ import re
 from colorama import Fore, Style
 import yaml
 
-from lib import check_exists, get_abs_path
+from utils import check_exists, get_abs_path
 
 CONFIG_FILENAME = 'config/vocabulary.yaml'
 
