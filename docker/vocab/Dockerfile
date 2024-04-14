@@ -11,7 +11,7 @@ LABEL Maintainer="athichart"
 # ├╴ vocab.py
 # └╴ vocab
 WORKDIR /home/app
-COPY src/lib/__init__.py ./lib/__init__.py
+COPY src/utils/__init__.py ./utils/__init__.py
 COPY src/config/vocabulary.yaml ./config/vocabulary.yaml
 COPY src/vocab.py ./
 RUN pip install colorama pyyaml
