@@ -244,16 +244,29 @@ class Dictionary(Word):
         return Game(word, meaning, example, choices)
 
     def verify(self) -> None:
-        '''Verify that all meanings have at least an example'''
+        '''Verify the dictionary file'''
+        # Verify that all meanings have at least an example
         need_examples = set(word
                             for word, meanings in self.dictionary.items()
                             for meaning, examples in meanings.items()
                             if examples is None)
         for word in sorted(list(need_examples)):
             self.print_word([word])
+        assert not need_examples
 
-        if need_examples:
-            assert False
+        # Verify that the word in the examples is enclosed with { and }
+        # This is necessary for the game to work as expected.
+        all_examples = [examples
+                        for word, meanings in self.dictionary.items()
+                        for meaning, examples in meanings.items()
+                        if examples is not None]
+        missing_quotes = [example
+                          for examples in all_examples
+                          for example in examples
+                          if '{' not in example or '}' not in example]
+        for example in missing_quotes:
+            print(example)
+        assert not missing_quotes
 
 
 def process_arguments() -> argparse.Namespace:
@@ -278,6 +291,55 @@ def process_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+@dataclass
+class Result:
+    word: str
+    meaning: str
+    correct: bool
+
+
+def play_word_game(dictionary) -> None:
+    '''Play the word game
+
+    Args:
+        dictionary (Dictionary): the dictionary object
+    '''
+    results = []
+
+    game = dictionary.generate_game()
+    game.print()
+
+    attempt, max_attempt, new_game = 0, 2, False
+    answer = input('Enter your answer or q/Q to quite:')
+    while answer not in ['q', 'Q']:
+        if game.check_answer(answer):
+            print(Fore.GREEN + "That's correct! Congratulation" +
+                  Style.RESET_ALL)
+            new_game = True
+        else:
+            attempt += 1
+            if attempt == max_attempt:
+                print(Fore.RED + "That's too bad!" + Style.RESET_ALL)
+                new_game = True
+            else:
+                print(Fore.RED + "Try again!" + Style.RESET_ALL)
+                answer = input('Enter your answer or q/Q to quite:')
+
+        if new_game:
+            results.append(Result(game.word, game.meaning,
+                                  attempt < max_attempt))
+            attempt, new_game = 0, False
+            game = dictionary.generate_game()
+            game.print()
+            answer = input('Enter your answer or q/Q to quite:')
+
+    num_correct = len([r for r in results if r.correct])
+    total = len(results)
+    percent = round((num_correct * 100)/total, 2)
+    print(f'\nResult = {num_correct}/{total} ({percent})\n')
+    dictionary.print_word([r.word for r in results if not r.correct])
+
+
 def main():
     '''The main function'''
     args = process_arguments()
@@ -289,30 +351,7 @@ def main():
         print(f'Dictionary size = {dictionary.size()} words')
 
     if args.game:
-        game = dictionary.generate_game()
-        game.print()
-
-        attempt, max_attempt, new_game = 0, 2, False
-        answer = input('Enter your answer or q/Q to quite:')
-        while answer not in ['q', 'Q']:
-            if game.check_answer(answer):
-                print(Fore.GREEN + "That's correct! Congratulation" +
-                      Style.RESET_ALL)
-                new_game = True
-            else:
-                attempt += 1
-                if attempt == max_attempt:
-                    print(Fore.RED + "That's too bad!" + Style.RESET_ALL)
-                    new_game = True
-                else:
-                    print(Fore.RED + "Try again!" + Style.RESET_ALL)
-                    answer = input('Enter your answer or q/Q to quite:')
-
-            if new_game:
-                attempt, new_game = 0, False
-                game = dictionary.generate_game()
-                game.print()
-                answer = input('Enter your answer or q/Q to quite:')
+        play_word_game(dictionary)
     else:
         words = [args.search] if args.search else \
                 dictionary.select_words(all_words=args.all)
