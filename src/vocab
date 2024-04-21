@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-
+#
+# The shell script is for calling the script vocab.py. it will set up a Python
+# virtual environment if need be and also install the required dependency. It
+# will also provide the location of the default dictionary for conveniece's
+# sake.
+#
 name=vocab
 packages="colorama pyyaml"
 
@@ -17,5 +22,6 @@ then
 fi
 
 source $venv_dir/bin/activate
-$script_dir/$name.py "$@"
+dictionary=config/vocabulary.yaml
+$script_dir/$name.py $dictionary "$@"
 deactivate
