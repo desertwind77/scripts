@@ -4,6 +4,14 @@ test package
 Submodules
 ----------
 
+test.test\_vocab module
+------------------------
+
+.. automodule:: test.test_vocab
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 test.test\_zipall module
 ------------------------
 

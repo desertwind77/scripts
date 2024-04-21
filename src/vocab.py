@@ -73,7 +73,8 @@ class Game(Word):
 
             example (str): the example sentence to be used as the question
 
-            choices (list[str]): a list of words to be used in the multiple choices
+            choices (list[str]): a list of words to be used in the
+                                 multiple choices
         '''
         # Replace the word between { and } with underscores.
         example = example.replace(r'\{', '{')
@@ -87,11 +88,12 @@ class Game(Word):
         self.word = self.sanitize_text(word)
         self.meaning = self.sanitize_text(meaning)
         self.example = self.sanitize_text(example)
-        self.choices = [ self.sanitize_text(t) for t in choices]
+        self.choices = [self.sanitize_text(t) for t in choices]
 
-        letters = [ chr(ord('a') + i ) for i in range(len(self.choices))]
-        self.multiple_choices = list(zip( letters, self.choices))
-        self.answer = next(i[0] for i in self.multiple_choices if i[1] == self.word)
+        letters = [chr(ord('a') + i) for i in range(len(self.choices))]
+        self.multiple_choices = list(zip(letters, self.choices))
+        self.answer = next(i[0] for i in self.multiple_choices
+                           if i[1] == self.word)
 
     def print(self) -> None:
         '''Print the question, meaning and multiple choices'''
@@ -110,6 +112,7 @@ class Game(Word):
             (bool) True if the answer is correct
         '''
         return answer == self.answer
+
 
 class Dictionary(Word):
     '''The class representing the dictionary'''
@@ -137,21 +140,14 @@ class Dictionary(Word):
         return 0 if self.dictionary is None else len(self.dictionary)
 
     def load_from_file(self) -> dict:
-        '''Load the vocabuary from a YAML file
+        '''Load the vocabuary from a YAML file and return the dictionary in the
+        format of vocab -> { meaning -> list of examples }
 
         Args:
             filename (str) : the YAML file containing the vocabuary
 
         Returns:
             dictionary containing the vocabuary in the following format
-
-                {
-                    'vocab1' : {
-                        'meaning1' : [ 'example1', 'example2', ... ],
-                        'meaning2' : [ 'example1', 'example2', ... ],
-                        ...
-                    },
-                }
         '''
         output = None
         try:
@@ -163,12 +159,13 @@ class Dictionary(Word):
         return output
 
     def select_words(self, all_words: bool = False) -> list[str]:
-        '''Randomly select a  word or all words from the dictionary for printing
-        depending on the all_words flag.
+        '''Randomly select a  word or all words from the dictionary for
+        printing depending on the all_words flag.
 
         Args:
-            dictionary (dict): the dictionary containing vocabularies, meanings,
-                               and examples
+            dictionary (dict): the dictionary containing vocabularies,
+                               meanings, and examples
+
             all_words (bool): select all the words in the dictionary
 
         Returns:
@@ -180,13 +177,12 @@ class Dictionary(Word):
             words = [random.choice(list(self.dictionary.keys()))]
         return words
 
-
     def print_word(self, words: list[str] = None) -> None:
         '''Look up and print all the words in the dictionary.
 
         Args:
-            dictionary (dict): the dictionary containing vocabularies, meanings,
-                               and examples
+            dictionary (dict): the dictionary containing vocabularies,
+                               meanings, and examples
 
             words (list[str]): list of words
         '''
@@ -211,10 +207,12 @@ class Dictionary(Word):
                     end_index = example.find('}')
                     if begin_index == -1 or end_index == -1:
                         print(self.color_example, end='')
-                        print(f'{self.tab}{self.tab}{self.sanitize_text(example) }')
+                        example = self.sanitize_text(example)
+                        print(f'{self.tab}{self.tab}{example}')
                     else:
                         begin = self.sanitize_text(example[0: begin_index])
-                        middle = self.sanitize_text(example[begin_index: end_index + 1])
+                        middle = self.sanitize_text(
+                                example[begin_index: end_index + 1])
                         end = self.sanitize_text(example[end_index + 1:])
 
                         print(f'{self.tab}{self.tab}', end='')
@@ -298,7 +296,8 @@ def main():
         answer = input('Enter your answer or q/Q to quite:')
         while answer not in ['q', 'Q']:
             if game.check_answer(answer):
-                print(Fore.GREEN + "That's correct! Congratulation" + Style.RESET_ALL)
+                print(Fore.GREEN + "That's correct! Congratulation" +
+                      Style.RESET_ALL)
                 new_game = True
             else:
                 attempt += 1
