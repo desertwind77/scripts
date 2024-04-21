@@ -20,4 +20,4 @@ RUN pip install colorama pyyaml
 # passed through the command that will be run in the container. For example,
 # the command "./vocab.py -a" will be run in the container when we run
 # "docker run --rm athichart/vocalb -a".
-ENTRYPOINT [ "./vocab.py" ]
+ENTRYPOINT [ "./vocab.py", "config/vocabulary.yaml" ]
