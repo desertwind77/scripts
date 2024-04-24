@@ -5,6 +5,7 @@ src
    :maxdepth: 4
 
    test
+   quote
    utils
    vocab
    zipall
