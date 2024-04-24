@@ -15,7 +15,7 @@ def filename():
 
 @pytest.fixture()
 def dictionary(filename):
-    '''Return the dictionary object'''
+    '''Return the Dictionary object'''
     return Dictionary(filename)
 
 
