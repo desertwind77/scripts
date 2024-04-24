@@ -4,6 +4,14 @@ test package
 Submodules
 ----------
 
+test.test\_quote module
+------------------------
+
+.. automodule:: test.test_quote
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 test.test\_vocab module
 ------------------------
 
