@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# The shell script is for calling the script vocab.py. it will set up a Python
+# The shell script is for calling the python script. it will set up a Python
 # virtual environment if need be and also install the required dependency. It
 # will also provide the location of the default dictionary for conveniece's
 # sake.
