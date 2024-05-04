@@ -22,6 +22,6 @@ then
 fi
 
 source $venv_dir/bin/activate
-quote_data=config/Quotes.md
+quote_data=$script_dir/config/Quotes.md
 $script_dir/$name.py $quote_data "$@"
 deactivate
