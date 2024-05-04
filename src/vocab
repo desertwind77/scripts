@@ -22,6 +22,6 @@ then
 fi
 
 source $venv_dir/bin/activate
-dictionary=config/vocabulary.yaml
+dictionary=$script_dir/config/vocabulary.yaml
 $script_dir/$name.py $dictionary "$@"
 deactivate
