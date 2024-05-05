@@ -1,7 +1,8 @@
+colorama
 flake8
 ghp-import
 pytest
+pyyaml
 sphinx
 sphinx_rtd_theme
-colorama
-pyyaml
+tabulate
