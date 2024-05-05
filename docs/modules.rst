@@ -7,6 +7,7 @@ src
    test
    quote
    utils
+   vmgr
    vocab
    zipall
    tic_tac_toe
