@@ -1,5 +1,6 @@
 '''Utility functions'''
 
+import json
 import logging
 import os
 import subprocess
@@ -50,11 +51,13 @@ def setup_logging(filename: str = None, verbose: bool = False) -> None:
     logging.basicConfig(**log_params)
 
 
-def execute(cmd: str) -> bool:
+def execute(cmd: str, discard_error: bool = False) -> bool:
     '''Call an external command
 
     Args:
         cmd (str): the external command to execute
+
+        discard_error (bool): skip logging error
 
     Returns:
         bool: True if the execution succeed
@@ -67,12 +70,13 @@ def execute(cmd: str) -> bool:
                        stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError:
-        logging.error('Error occur when executing: %s', cmd)
+        if not discard_error:
+            logging.error('Error occur when executing: %s', cmd)
         return False
     return True
 
 
-def check_exists(name: str, is_file: bool) -> bool:
+def check_exists(name: str, is_file: bool):
     '''Check if a file or a folder exists
 
     Args:
@@ -80,9 +84,6 @@ def check_exists(name: str, is_file: bool) -> bool:
 
         is_file (bool) : a flag to indicate if we want to check
                          for a file or a folder
-
-    Returns:
-        True if the entity exists and the type matches
     '''
     if not os.path.exists(name):
         raise FileNotFoundError(name)
@@ -92,3 +93,27 @@ def check_exists(name: str, is_file: bool) -> bool:
     else:
         if not os.path.isdir(name):
             raise NotADirectoryError(name)
+
+
+class ConfigFileBase:
+    '''The parent class for managing JSON config file'''
+    def __init__(self, filename: str) -> None:
+        self.filename = filename
+        self.config = self.load_config()
+
+    def load_config(self) -> dict:
+        '''Load the configuration stored in a JSON file. The configuration must
+        be stored with the key 'config'.
+
+        Args:
+            config_filename (str): the JSON file storing the configuration
+
+        Returns:
+            a dictionary containing the configuration
+        '''
+        check_exists(self.filename, is_file=True)
+
+        with open( self.filename, encoding="utf-8" ) as config_file:
+            logging.debug( 'Loading %s', self.filename)
+            config_data = json.load( config_file )
+            return config_data.get( 'config', None )
