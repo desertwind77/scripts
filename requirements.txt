@@ -6,3 +6,4 @@ pyyaml
 sphinx
 sphinx_rtd_theme
 tabulate
+PyPDF2
