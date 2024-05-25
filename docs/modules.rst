@@ -11,3 +11,4 @@ src
    vocab
    zipall
    tic_tac_toe
+   pdfmgr
