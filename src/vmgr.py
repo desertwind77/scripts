@@ -27,6 +27,7 @@ class PluginConfig(ConfigFileBase):
         self.plugin_dir = self.config['InstallInfo']['PluginDir']
         self.git_repo = self.config['InstallInfo']['GitRepo']
 
+
 class ViPluginManager:
     '''Vi plugin manger'''
     def __init__(self, filename: str) -> None:

@@ -43,34 +43,34 @@ class TicTacToe:
             the winner ('O' or 'X'), draw ('T') or no winner yet (None)
         '''
         # horizontal
-        for row in range( self.size ):
-            value = list( set( self.board[ row ][ i ] for i in range( self.size ) ) )
-            if len( value ) == 1 and value[ 0 ] != self.empty:
-                return value[ 0 ]
+        for row in range(self.size):
+            value = list(set(self.board[row][i] for i in range(self.size)))
+            if len(value) == 1 and value[0] != self.empty:
+                return value[0]
 
         # vertical
-        for col in range( self.size ):
-            value = list( set( self.board[ i ][ col ] for i in range( self.size ) ) )
-            if len( value ) == 1 and value[ 0 ] != self.empty:
-                return value[ 0 ]
+        for col in range(self.size):
+            value = list(set(self.board[i][col] for i in range(self.size)))
+            if len(value) == 1 and value[0] != self.empty:
+                return value[0]
 
         # diagonal
-        value = list( set( self.board[ row ][ row ] for row in range( self.size ) ) )
-        if len( value ) == 1 and value[ 0 ] != self.empty:
-            return value[ 0 ]
-        value = list( set( self.board[ row ][ self.size - row - 1 ]
-                           for row in range( self.size ) ) )
-        if len( value ) == 1 and value[ 0 ] != self.empty:
-            return value[ 0 ]
+        value = list(set(self.board[row][row] for row in range(self.size)))
+        if len(value) == 1 and value[0] != self.empty:
+            return value[0]
+        value = list(set(self.board[row][self.size - row - 1]
+                         for row in range(self.size)))
+        if len(value) == 1 and value[0] != self.empty:
+            return value[0]
 
-        empty_count = [ self.board[ r ][ c ] for r in range( self.size )
-                        for c in range( self.size ) if self.board[ r ][ c] == self.empty ]
-        if len( empty_count ) == 0:
+        empty_count = [self.board[r][c] for r in range(self.size)
+                       for c in range(self.size) if self.board[r][c] == self.empty]
+        if len(empty_count) == 0:
             return self.tie
 
         return None
 
-    def minimax( self, depth: int, is_maximizing: bool ) -> int:
+    def minimax(self, depth: int, is_maximizing: bool) -> int:
         '''An implementation of the Minimax algorithm
 
         Arguments:
@@ -96,24 +96,24 @@ class TicTacToe:
 
         if is_maximizing:
             best_score = -math.inf
-            for row in range( self.size ):
-                for col in range( self.size ):
-                    if self.board[ row ][ col ] != self.empty:
+            for row in range(self.size):
+                for col in range(self.size):
+                    if self.board[row][col] != self.empty:
                         continue
-                    self.board[ row ][ col ] = self.machine
-                    score = self.minimax( depth + 1, False )
-                    best_score = max( best_score, score )
-                    self.board[ row ][ col ] = self.empty
+                    self.board[row][col] = self.machine
+                    score = self.minimax(depth + 1, False)
+                    best_score = max(best_score, score)
+                    self.board[row][col] = self.empty
         else:
             best_score = math.inf
-            for row in range( self.size ):
-                for col in range( self.size ):
-                    if self.board[ row ][ col ] != self.empty:
+            for row in range(self.size):
+                for col in range(self.size):
+                    if self.board[row][col] != self.empty:
                         continue
-                    self.board[ row ][ col ] = self.human
-                    score = self.minimax( depth + 1, True )
-                    best_score = min( best_score, score )
-                    self.board[ row ][ col ] = self.empty
+                    self.board[row][col] = self.human
+                    score = self.minimax(depth + 1, True)
+                    best_score = min(best_score, score)
+                    self.board[row][col] = self.empty
         return best_score
 
     def best_move(self) -> None:
@@ -121,28 +121,28 @@ class TicTacToe:
         highest score according to the minimax algorithm'''
         best_score = -10
         move_row = move_col = None
-        for row in range( self.size ):
-            for col in range( self.size ):
-                if self.board[ row ][ col ] != self.empty:
+        for row in range(self.size):
+            for col in range(self.size):
+                if self.board[row][col] != self.empty:
                     continue
-                self.board[ row ][ col ] = self.machine
-                score = self.minimax( 0, False )
-                self.board[ row ][ col ] = self.empty
+                self.board[row][col] = self.machine
+                score = self.minimax(0, False)
+                self.board[row][col] = self.empty
 
                 if score >= best_score:
                     best_score = score
                     move_row, move_col = row, col
-        self.board[ move_row ][ move_col ] = self.machine
+        self.board[move_row][move_col] = self.machine
 
     def random_move(self) -> None:
         '''Choose an empty cell randomly'''
         empty_cells = []
-        for row in range( self.size ):
-            for col in range( self.size ):
-                if self.board[ row ][ col ] == self.empty:
-                    empty_cells.append( ( row, col ) )
-        r, c = random.choice( empty_cells )
-        self.board[ r ][ c ] = self.machine
+        for row in range(self.size):
+            for col in range(self.size):
+                if self.board[row][col] == self.empty:
+                    empty_cells.append((row, col))
+        r, c = random.choice(empty_cells)
+        self.board[r][c] = self.machine
 
     def coin_toss(self) -> bool:
         '''Toss a coin
@@ -150,10 +150,10 @@ class TicTacToe:
         Returns:
             (bool) either True or False 50% of the times
         '''
-        gen_id = str( uuid.uuid4() )
-        while not gen_id[ 0 ].isnumeric():
-            gen_id = str( uuid.uuid4() )
-        return int( gen_id[ 0 ] ) >= 5
+        gen_id = str(uuid.uuid4())
+        while not gen_id[0].isnumeric():
+            gen_id = str(uuid.uuid4())
+        return int(gen_id[0]) >= 5
 
     def play(self, difficulty: int = None, human_first: bool = None) -> None:
         '''Play the game against the computer
@@ -171,15 +171,15 @@ class TicTacToe:
 
         while count < self.size * self.size:
             if human:
-                input_str  = input( "Enter 'q' to quit or row col e.g. 1 2: ").strip()
+                input_str = input("Enter 'q' to quit or row col e.g. 1 2: ").strip()
                 if input_str == 'q':
                     return
-                row, col = input_str.split( ' ')
-                row, col = int( row ), int( col )
-                if ( row >= self.size or col >= self.size ) or \
-                        self.board[ row ][ col ] != self.empty:
+                row, col = input_str.split(' ')
+                row, col = int(row), int(col)
+                if (row >= self.size or col >= self.size) or \
+                        self.board[row][col] != self.empty:
                     continue
-                self.board[ row ][ col ] = self.human
+                self.board[row][col] = self.human
                 print()
             else:
                 if difficulty == 3:
@@ -191,7 +191,7 @@ class TicTacToe:
                         self.random_move()
                 else:
                     self.random_move()
-                print( "Machine's turn\n" )
+                print("Machine's turn\n")
             self.draw()
             count += 1
             human = not human
@@ -202,6 +202,7 @@ class TicTacToe:
             print(message)
             break
 
+
 def process_arguments() -> argparse.Namespace:
     '''Process commandline arguments
 
@@ -209,12 +210,13 @@ def process_arguments() -> argparse.Namespace:
         a Parameters object which contains all command line arguments
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument( '-d', '--difficulty', action='store', dest='difficulty',
-                         choices=[ '1', '2', '3' ], default='3',
-                         help='Choose the difficulty level' )
-    parser.add_argument( '-H', '--human-first', action='store_true', dest='human_first',
-                         help='Let the human play first' )
+    parser.add_argument('-d', '--difficulty', action='store', dest='difficulty',
+                        choices=['1', '2', '3'], default='3',
+                        help='Choose the difficulty level')
+    parser.add_argument('-H', '--human-first', action='store_true', dest='human_first',
+                        help='Let the human play first')
     return parser.parse_args()
+
 
 def main():
     '''The main program'''
@@ -222,6 +224,7 @@ def main():
     game = TicTacToe()
     difficulty = int(args.difficulty)
     game.play(difficulty=difficulty, human_first=args.human_first)
+
 
 if __name__ == '__main__':
     main()
