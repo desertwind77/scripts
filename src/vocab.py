@@ -14,7 +14,6 @@ import argparse
 import random
 import re
 import sys
-# pylint: disable=import-error
 from colorama import Fore, Style
 import yaml
 
@@ -29,16 +28,25 @@ class NoExampleFound(Exception):
 
 @dataclass
 class ReplacePattern:
-    '''For replacing src with dst'''
+    '''A class for string replacement'''
     src: str
     dst: str
 
 
+@dataclass
+class Result:
+    '''A class for reporting the result of a word game'''
+    word: str
+    meaning: str
+    correct: bool
+
+
 class Word:
+    '''General base class'''
     tab = '   '
 
-    '''General base class'''
-    def sanitize_text(self, txt: str) -> str:
+    @staticmethod
+    def sanitize_text(txt: str) -> str:
         '''Clean up text e.g. removing escape characters
 
         Args:
@@ -85,10 +93,10 @@ class Game(Word):
         pattern = obj.group(1)
         example = example.replace(pattern, '_' * 5)
 
-        self.word = self.sanitize_text(word)
-        self.meaning = self.sanitize_text(meaning)
-        self.example = self.sanitize_text(example)
-        self.choices = [self.sanitize_text(t) for t in choices]
+        self.word = Word.sanitize_text(word)
+        self.meaning = Word.sanitize_text(meaning)
+        self.example = Word.sanitize_text(example)
+        self.choices = [Word.sanitize_text(t) for t in choices]
 
         letters = [chr(ord('a') + i) for i in range(len(self.choices))]
         self.multiple_choices = list(zip(letters, self.choices))
@@ -190,11 +198,11 @@ class Dictionary(Word):
             if word not in self.dictionary:
                 continue
             print(self.color_word, end='')
-            print(f'{self.sanitize_text(word)}:')
+            print(f'{Word.sanitize_text(word)}:')
 
             for meaning, examples in self.dictionary[word].items():
                 print(self.color_meaning, end='')
-                print(f'{self.tab}{self.sanitize_text(meaning) }:')
+                print(f'{self.tab}{Word.sanitize_text(meaning) }:')
 
                 if not examples:
                     continue
@@ -207,13 +215,13 @@ class Dictionary(Word):
                     end_index = example.find('}')
                     if begin_index == -1 or end_index == -1:
                         print(self.color_example, end='')
-                        example = self.sanitize_text(example)
+                        example = Word.sanitize_text(example)
                         print(f'{self.tab}{self.tab}{example}')
                     else:
-                        begin = self.sanitize_text(example[0: begin_index])
-                        middle = self.sanitize_text(
+                        begin = Word.sanitize_text(example[0: begin_index])
+                        middle = Word.sanitize_text(
                                 example[begin_index: end_index + 1])
-                        end = self.sanitize_text(example[end_index + 1:])
+                        end = Word.sanitize_text(example[end_index + 1:])
 
                         print(f'{self.tab}{self.tab}', end='')
                         print(self.color_example + f'{begin}', end='')
@@ -291,13 +299,6 @@ def process_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-@dataclass
-class Result:
-    word: str
-    meaning: str
-    correct: bool
-
-
 def play_word_game(dictionary) -> None:
     '''Play the word game
 
@@ -333,6 +334,7 @@ def play_word_game(dictionary) -> None:
             game.print()
             answer = input('Enter your answer or q/Q to quite:')
 
+    # Print the summary of the games being played
     num_correct = len([r for r in results if r.correct])
     total = len(results)
     percent = round((num_correct * 100)/total, 2)

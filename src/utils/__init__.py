@@ -113,7 +113,7 @@ class ConfigFileBase:
         '''
         check_exists(self.filename, is_file=True)
 
-        with open( self.filename, encoding="utf-8" ) as config_file:
-            logging.debug( 'Loading %s', self.filename)
-            config_data = json.load( config_file )
-            return config_data.get( 'config', None )
+        with open(self.filename, encoding="utf-8") as config_file:
+            logging.debug('Loading %s', self.filename)
+            config_data = json.load(config_file)
+            return config_data.get('config', None)
