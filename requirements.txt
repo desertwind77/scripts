@@ -7,3 +7,5 @@ sphinx
 sphinx_rtd_theme
 tabulate
 PyPDF2
+gtts
+pygame
