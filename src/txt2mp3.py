@@ -8,7 +8,6 @@ import argparse
 import fileinput
 import os
 
-# pylint: disable=import-error
 # google text to speech library
 from gtts import gTTS
 import pygame

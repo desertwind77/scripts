@@ -7,8 +7,6 @@ import random
 import re
 import textwrap
 
-# pylint: disable=import-error
-# pylint: disable=too-few-public-methods
 from colorama import Fore, Style
 
 

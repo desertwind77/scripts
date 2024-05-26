@@ -7,7 +7,6 @@ from typing import List
 import argparse
 import random
 import sys
-# pylint: disable=import-error
 import PyPDF2
 
 

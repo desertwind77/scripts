@@ -2,7 +2,6 @@
 '''
 vmgr : intsall, update, or uninstall vim plugins
 '''
-from datetime import datetime
 from pathlib import Path
 import argparse
 import logging
@@ -10,8 +9,6 @@ import os
 import shutil
 import sys
 
-# pylint: disable=import-error
-# pylint: disable=too-few-public-methods
 from tabulate import tabulate
 from utils import ConfigFileBase, check_exists, execute, setup_logging
 

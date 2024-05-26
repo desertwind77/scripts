@@ -9,3 +9,6 @@ tabulate
 PyPDF2
 gtts
 pygame
+pydub
+fastprogress
+mutagen
