@@ -12,3 +12,4 @@ src
    zipall
    tic_tac_toe
    pdfmgr
+   txt2mp3
