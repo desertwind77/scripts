@@ -1,0 +1,14 @@
+#!/bin/sh
+# Removing an unwanted app from MacOS X's launchpad
+if [ -z "$1" ]; then
+   echo "Usage: $0 <appname>"
+   exit
+fi
+app=$1
+if [[ $OSTYPE == 'darwin'* ]]; then
+   echo "Removing $app from launchpad"
+   sqlite3 $(sudo find /private/var/folders -name com.apple.dock.launchpad)/db/db "DELETE FROM apps WHERE title='$app';"
+   echo "Please execute 'killall Dock'"
+else
+   echo "Exiting. This script is only supported on Mac OS X."
+fi
