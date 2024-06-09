@@ -13,3 +13,4 @@ src
    tic_tac_toe
    pdfmgr
    txt2mp3
+   flac2mp3
