@@ -1,0 +1,7 @@
+{
+   "config" : {
+      "destination" : "/Volumes/Public/Music",
+      "targets" : [ "cd", "dsd", "flac", "mqa" ],
+      "skip_dir" : [ ".DS_Store" ]
+   }
+}
