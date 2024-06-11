@@ -12,3 +12,4 @@ pygame
 pydub
 fastprogress
 mutagen
+rich
