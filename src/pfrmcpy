@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+'''
+Copy photo from diff locations to the shared photo frame location on NAS
+'''
+import argparse
+import os
+import re
+import shutil
+import sys
+from genutils import load_config, check_if_folder_exists, DirectoryNotFound
+
+CONFIG_FILE = 'config/pfrmcpy.json'
+
+class DirCopyInfo:
+    '''Information about a folder to copy'''
+    def __init__( self, src_folder, dst_folder ):
+        self.src_folder = src_folder
+        self.dst_folder = dst_folder
+
+    def __str__( self ):
+        return f'{self.src_folder} ---> {self.dst_folder}'
+
+class FileCopyInfo:
+    '''Information about a file to copy'''
+    def __init__( self, src, dst ):
+        self.src = src
+        self.dst = dst
+
+    def __str__( self ):
+        return f'{self.src} ---> {self.dst}'
+
+def get_src_dst_folder_pairs( config ):
+    '''Return the list of source folders specified in the config'''
+    location = config[ "PhotoFrames" ][ "Destination" ]
+    destination = config[ "Destinations" ][ location ]
+    photoframes = config[ "PhotoFrames" ][ "Frames" ]
+
+    all_source_locations = []
+    for frame, frame_info in photoframes.items():
+        if "Disabled" in frame_info and frame_info[ "Disabled" ] == "True":
+            continue
+
+        dst_folder = os.path.join( destination, frame )
+        sources = frame_info[ "Sources" ]
+        for source, sinfo in sources.items():
+            src_location = config[ "Destinations" ][ source ]
+            selected_dir = sinfo[ "SelectedDir" ]
+            selected_subdir = sinfo.get( "SelectedSubDir" )
+            for folder in selected_dir:
+                path = os.path.join( src_location, folder )
+                if selected_subdir:
+                    path = os.path.join( path, selected_subdir )
+                all_source_locations.append( DirCopyInfo( path, dst_folder ) )
+    return all_source_locations
+
+def check_all_folder_exists( dir_copy_list ):
+    '''Check if all folders in dir_copy_list exist'''
+    folder_list = []
+    for dir_copy_info in dir_copy_list:
+        folder_list.append( dir_copy_info.src_folder )
+        folder_list.append( dir_copy_info.dst_folder )
+    folder_list = list( set( folder_list ) )
+
+    for folder in folder_list:
+        check_if_folder_exists( folder )
+
+def get_next_index_from_file_list( file_list ):
+    '''Get the last file index in the destination folder'''
+    next_index = 0
+    if file_list:
+        last_file = sorted( file_list )[ -1 ]
+        # The destination filename format is '00000__original_filename'
+        # Note that ' ' in the original filename is replaced with '_'.
+        search = re.match( r'(\d{5})__.*', last_file )
+        if search:
+            next_index = search.group( 1 )
+            next_index = int( next_index )
+    return next_index + 1
+
+def get_dst_filename_without_index( filename ):
+    '''
+    The destination filename format is '00000__original_filename'
+    Note that ' ' in the original filename is replaced with '_'.
+    So remove '00000__' and return only 'original_filename'
+    '''
+    search = re.match( r'\d{5}__(.*)', filename )
+    return search.group( 1 )
+
+def get_file_copy_list( config, dir_copy_list ):
+    '''Generate the list of files to copy'''
+    ignored_list = config[ 'IgnoredList' ]
+
+    # Get the list of the destination folder
+    dst_list = []
+    for dir_copy_info in dir_copy_list:
+        dst_list.append( dir_copy_info.dst_folder )
+    dst_list = list( set( dst_list ) )
+
+    # Create a map of destination folder -> file list
+    dst_file_list = { dst : os.listdir( dst ) for dst in dst_list }
+    # Create a map of destination folder -> file list where
+    # the index has been removed from the filename
+    dst_file_list_no_index = {}
+    for dst, file_list in dst_file_list.items():
+        dst_file_list_no_index[ dst ] = \
+                [ get_dst_filename_without_index( f ) for f in file_list ]
+    # Create a map of destination folder -> next index
+    next_dst_index = { dst : get_next_index_from_file_list( file_list ) for dst, file_list in dst_file_list.items() }
+
+    file_copy_list = []
+    for dir_copy_info in dir_copy_list:
+        for src_file in os.listdir( dir_copy_info.src_folder ):
+            if src_file in ignored_list:
+                continue
+
+            # Check if src_file is already in dir_copy_info.dst_folder or not.
+            # Currently, we just check the filename because we believe the source
+            # filenames are unique. If this is not true, we may have to use md5
+            # checksum. I don't want to do that now because it is overkill.
+            new_src_file = src_file.replace( ' ', '_' )
+            if new_src_file in dst_file_list_no_index[ dir_copy_info.dst_folder ]:
+                continue
+
+            index = next_dst_index[ dir_copy_info.dst_folder ]
+            next_dst_index[ dir_copy_info.dst_folder ] = index + 1
+            new_src_file = f'{index:05}__{new_src_file}'
+            abs_src_file = os.path.join( dir_copy_info.src_folder, src_file )
+            abs_dst_file = os.path.join( dir_copy_info.dst_folder, new_src_file )
+            file_copy_list.append( FileCopyInfo( abs_src_file, abs_dst_file ) )
+
+    return file_copy_list
+
+def perform_copy( file_copy_list, silent=False, dry_run=False ):
+    '''Execute the file copy operation'''
+    for info in file_copy_list:
+        if not silent:
+            print( info )
+        if not dry_run:
+            shutil.copy( info.src, info.dst )
+
+def process_command_line_argument():
+    '''Process the command line arguments'''
+    parser = argparse.ArgumentParser()
+    parser.add_argument( "-d", "--dry-run", action="store_true",
+                        help="Do not really copy" )
+    parser.add_argument( "-s", "--silent", action="store_true",
+                         help="Do not print the source and destination" )
+    return parser.parse_args()
+
+def main():
+    '''Main program'''
+    args = process_command_line_argument()
+    try:
+        config = load_config( CONFIG_FILE )
+    except DirectoryNotFound as exception:
+        print( exception )
+        sys.exit( 1 )
+
+    dir_copy_list = get_src_dst_folder_pairs( config )
+    check_all_folder_exists( dir_copy_list )
+    file_copy_list = get_file_copy_list( config, dir_copy_list )
+    perform_copy( file_copy_list, args.silent, args.dry_run )
+
+if __name__ == '__main__':
+    main()

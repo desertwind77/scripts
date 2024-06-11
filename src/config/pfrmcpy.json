@@ -1,0 +1,36 @@
+{ 
+   "config" : {
+      "Destinations" : {
+         "SourcePortFolio" : "/Volumes/G-RAID/Photo/Portfolio",
+         "SourcePhotoFrame" : "/Volumes/G-RAID/Photo/Photo Frame",
+         "DestinationPhotoFrame" : "/Volumes/Public/Photo Frame"
+      },
+      "IgnoredList" : [ ".DS_Store", ".BridgeSort" ],
+      "PhotoFrames" : {
+         "Destination" : "DestinationPhotoFrame",
+         "Frames" : {
+            "Family": {
+               "Sources" : {
+                  "SourcePortFolio" : {
+                     "SelectedDir" : [ "Family (Mobile)", "Family Photo", "My Family", "My Love", "Myself" ],
+                     "SelectedSubDir" : "Web"
+                  },
+                  "SourcePhotoFrame" : {
+                     "SelectedDir" : [ "2016", "2018", "2019", "2023", "iphone" ]
+                  }
+               }
+            },
+            "Portfolio" : {
+               "Sources" : {
+                  "SourcePortFolio" : {
+                     "SelectedDir" : [ "Abstract", "Astrophotography", "Black And White", "Buddha", "Infrared",
+                                       "Landscape", "Nature", "Panorama", "Random Things Around Me", "San Francisco",
+                                       "Thailand", "Travel", "Wild Life" ],
+                     "SelectedSubDir" : "Web"
+                  }
+               }
+            }
+         }
+      }
+   }
+}
