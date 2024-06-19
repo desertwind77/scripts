@@ -1,0 +1,160 @@
+{
+   "config" : {
+      "Descriptions" : {
+         "ack" : "grep replacement",
+         "bat" : "more replacement",
+         "btop" : "top replacement",
+         "cheat" : "print a cheat sheet",
+         "cmus" : "a console-based music player",
+         "cscope" : "code browser",
+         "ctags-exuberant" : "Exuberant ctags for tagbar in vim to work",
+         "dos2unix" : "Translate a dos file to a unix file",
+         "duf" : "du replacement",
+         "dust" : "du replacement",
+         "elinks" : "a console-based browser",
+         "exa" : "ls replacement",
+         "fd-find" : "find replacement",
+         "ffmpeg" : "for the script to convert flac to mp3",
+         "fx" : "command line json viewer",
+         "fish" : "fish shell",
+         "fluid-synth" : "Play midi on Frescobaldi",
+         "fzf" : "fuzzy finder",
+         "glow" : "markdown viewer",
+         "grex" : "generate a regular expression",
+         "htop" : "top replacemnt",
+         "hyperfine" : "benchmarking tool",
+         "imageMagick" : "convert image from one format to another",
+         "jq" : "Print a json file with color",
+         "jsonlint" : "JSON syntax checker",
+         "lilypond" : "Latex for music score",
+         "lynx" : "a console-based browser",
+         "mas" : "query software update in Apple AppStore",
+         "mc" : "Midnight commander",
+         "mosh" : "ssh allowing intermittent connectivity",
+         "multipass" : "create and manage Ubuntu virtual machines",
+         "ncdu" : "curse-based du replacement",
+         "octave" : "",
+         "procs" : "ps replacement",
+         "pylint" : "Python syntax checker",
+         "ranger" : "file manager",
+         "ripgrep" : "a grep replacement (rg)",
+         "tealdeer" : "man replacement (tldr)",
+         "tig" : "an ncurses-based text-mode interface for git",
+         "tmux" : "screen multiplexer",
+         "tokei" : "display statistics about the code",
+         "w3m" : "pager/text based brower used by ranger to display image",
+         "wget" : "web downloader",
+         "xrdp" : "remote desktop",
+         "youtube-dl" : "Youtube downloader",
+         "zellij" : "Terminal multiplexer (better than tmux)",
+         "zoxide" : "a smart cd command"
+      },
+      "Platforms" : {
+         "linux" : {
+            "pre-install" : [
+               "sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
+               "sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+            ],
+            "packages" : {
+               "command" : "sudo dnf install -y",
+               "groups" : {
+                  "general" : [
+                     "bat", "cmus", "cscope", "ctags", "elinks", "exa", "fd-find", "ffmpeg",
+                     "fish", "flac", "fx", "git-lfs", "htop", "hyperfine", "jq", "jsonlint",
+                     "ncdu", "mc", "mosh", "neofetch", "octave", "procs", "sd", "setroubleshoot",
+                     "tealdeer", "tig", "timeshift", "tokei", "tmux", "vim-enhanced", "vim-X11",
+                     "vlc", "wget", "youtube-dl"
+                  ],
+                  "development" : [
+                     "gcc-g++", "go", "httpd", "kernel-devel", "ncurses-compat-libs",
+                     "mariadb-server", "php-mysqlnd", "phyMyAdmin"
+                  ]
+               }
+            }
+         },
+         "mac" : {
+            "pre-install" : [],
+            "packages" : {
+               "command" : "brew install",
+               "groups" : {
+                  "general" : [
+                     "ack", "bat", "btop", "cheat", "cscope", "ctags-exuberant", "dos2unix", "duf", "dust", "exa",
+                     "fd", "ffmpeg", "fish", "fluid-synth", "fzf", "grex", "htop",
+                     "hyperfine", "imageMagick", "lilypond", "lynx", "mas", "mc", "mosh", "ncdu", "neofetch",
+                     "octave", "procs", "python-tk", "ranger", "rar", "ripgrep", "tealdeer", "tig", "tmux", "tokei",
+                     "vim", "wget", "youtube-dl", "zellij", "zoxide"
+                  ]
+               }
+            },
+            "custom" : {
+               "exa fonts" : {
+                  "commands" : [
+                     "brew tap homebrew/cask-fonts",
+                     "brew install --cask font-hack-nerd-font",
+                     "brew install --cask font-consolas-for-powerline"
+                  ],
+                  "note" : "Install Hack Nerd Font for 'exa --icons' to work. After this, change the font in iterm2 to Hack"
+               },
+               "Oh My Fish!" : {
+                  "commands" : [
+                     "ln -s /opt/homebrew/bin/python3 /opt/homebrew/bin/python",
+                     "ln -s /opt/homebrew/bin/pip3 /opt/homebrew/bin/pip",
+                     "curl -L https://get.oh-my.fish | fish",
+                     "pip3 install powerline-status",
+                     "echo set -gx PATH /opt/homebrew/bin/ $PATH >> ~/.local/share/omf/pkg/powerline/init.fish"
+                  ],
+                  "note" : "We need to set PATH in init.fish because the PATH environment variables set in config.fish happens after this file is run"
+               },
+               "fisher" : {
+                  "commands" : [
+                     "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher",
+                     "fisher install PatrickF1/fzf.fish"
+                  ],
+                  "note" : "Install fisher, the plugin manager for fish, and then use it to install fzf.fish"
+               }
+            }
+         },
+         "pi" : {
+            "packages" : {
+               "command" : "sudo apt-get install -y",
+               "groups" : {
+                  "general" : [
+                     "ack", "bat", "cscope", "cmus", "elinks", "exa", "exuberant-ctags", "fd-find", "fish", "flac", "fzf",
+                     "git-lfs", "htop", "jq", "lynx", "mc", "moc", "moc-ffmpeg-plugin", "mosh", "mpg321", "ncdu", "neofetch",
+                     "powerline", "ranger", "ripgrep", "sd", "sox", "tig", "tmux", "vim-nox", "wget", "zoxide"
+                  ]
+               }
+            },
+            "custom" : {
+               "Oh My Fish!" : {
+                  "commands" : [
+                     "curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish",
+                     "omf theme agnoster"
+                  ]
+               },
+               "fisher" : {
+                  "commands" : [
+                     "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher",
+                     "fisher install PatrickF1/fzf.fish@v2.0"
+                  ],
+                  "note" : "Install fisher, the plugin manager for fish, and then use it to install fzf.fish"
+               },
+               "tmuxifier" : {
+                  "commands" : [
+                     "mkdir -p ~/Workspace/software",
+                     "git clone https://github.com/jimeh/tmuxifier.git"
+                  ]
+               }
+            }
+         },
+         "all" : {
+            "rust" : [
+               "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
+               "rustc --version",
+               "rustup update",
+               "cargo install gitui"
+            ]
+         }
+      }
+   }
+}
