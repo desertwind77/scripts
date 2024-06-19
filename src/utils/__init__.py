@@ -82,7 +82,7 @@ def check_exists(name: str, is_file: bool):
     Args:
         name (str): the name of the file or folder
 
-        is_file (bool) : a flag to indicate if we want to check
+        is_file (bool): a flag to indicate if we want to check
                          for a file or a folder
     '''
     if not os.path.exists(name):
@@ -93,6 +93,39 @@ def check_exists(name: str, is_file: bool):
     else:
         if not os.path.isdir(name):
             raise NotADirectoryError(name)
+
+
+def load_config(config_filename: str, verbose: bool = False) -> dict:
+    '''Load the configuration stored in a JSON file. The configuration must
+    be stored with the key 'config'.
+
+    args:
+        config_filename (str): the JSON file storing the configuration
+        verbose (bool): print the debug information or not
+
+    returns:
+        a dictionary containing the configuration
+    '''
+    # __file__ stores the absolute path of the python script
+    # realpath() return the canonical path of the specified
+    # filename by eliminating any symbolic links encountered
+    # in the path
+    script_path = os.path.realpath(os.path.dirname(__file__))
+    config_abs_filename = os.path.join(script_path, config_filename)
+    check_exists(config_abs_filename, is_file=True)
+
+    config = None
+    with open(config_abs_filename, encoding="utf-8") as config_file:
+        if verbose:
+            print(f'Loading config file: {config_abs_filename}')
+        config_data = json.load(config_file)
+        config = config_data.get('config', None)
+
+    if config and "Destinations" in config:
+        destinations = config["Destinations"]
+        for _, folder in destinations.items():
+            check_exists(folder, is_file=False)
+    return config
 
 
 class ConfigFileBase:

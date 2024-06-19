@@ -14,95 +14,99 @@ Note that the default target is the flac directory.
 '''
 
 import argparse
-import json
 import os
 import re
 import shutil
 import sys
-from genutils import load_config
+from utils import load_config
 
-CONFIG_FILENAME  = 'config/rooncpy.json'
+CONFIG_FILENAME = 'config/rooncpy.json'
 
-def sanity_check( config_data ):
+
+def sanity_check(config_data):
     '''Check the directory structure of Roon storage'''
-    destination = config_data.get( 'destination' )
-    if not destination or not os.path.isdir( destination ):
-        print( f'Unable to access {destination}' )
-        sys.exit( 1 )
+    destination = config_data.get('destination')
+    if not destination or not os.path.isdir(destination):
+        print(f'Unable to access {destination}')
+        sys.exit(1)
 
-    targets = config_data.get( 'targets' )
-    if not targets or len( targets ) == 0:
-        print( '"targets" missing from the config' )
-        sys.exit( 1 )
+    targets = config_data.get('targets')
+    if not targets or len(targets) == 0:
+        print('"targets" missing from the config')
+        sys.exit(1)
 
     for target in targets:
-        cur_dir = os.path.join( destination, target )
-        if not os.path.isdir( cur_dir ):
-            print( f'{cur_dir} not found' )
-            sys.exit( 1 )
+        cur_dir = os.path.join(destination, target)
+        if not os.path.isdir(cur_dir):
+            print(f'{cur_dir} not found')
+            sys.exit(1)
 
-def copy_files( src, dst, prefix=None, verbose=False, dry_run=False ):
+
+def copy_files(src, dst, prefix=None, verbose=False, dry_run=False):
     '''Copy src to dst'''
-    real_src = os.path.join( prefix, src ) if prefix else src
-    if not os.path.isdir( real_src ):
-        print( f'The source {src} not found' )
-        sys.exit( 1 )
-    elif not os.path.isdir( dst ):
-        print( f'The destination {dst} not found' )
-        sys.exit( 1 )
+    real_src = os.path.join(prefix, src) if prefix else src
+    if not os.path.isdir(real_src):
+        print(f'The source {src} not found')
+        sys.exit(1)
+    elif not os.path.isdir(dst):
+        print(f'The destination {dst} not found')
+        sys.exit(1)
 
     # We expect the source to be in the format "Artist - Album"
     # Note that we use (.*?) to force non-greedy match the artist.
-    obj = re.match( r'(.*?) - (.*)', src )
+    # So that, we can match the artist part correctly in the following
+    # directory: Extreme - Golden Hits - Best Years
+    obj = re.match(r'(.*?) - (.*)', src)
     if not obj:
-        print( f'Unable to recognize the format of {src}' )
-        sys.exit( 1 )
-    artist = obj.group( 1 )
-    #album = obj.group( 2 )
+        print(f'Unable to recognize the format of {src}')
+        sys.exit(1)
+    artist = obj.group(1)
+    # album = obj.group(2)
 
     final_target = None
     various_artists = 'Various Artists'
     if artist == various_artists:
         # Let's not over-engineer 'Various Artists'
-        final_target = os.path.join( dst, various_artists, src )
+        final_target = os.path.join(dst, various_artists, src)
     else:
-        initial = artist[ 0 ]
-        final_target = os.path.join( dst, initial, artist, src )
+        initial = artist[0]
+        final_target = os.path.join(dst, initial, artist, src)
 
     try:
         if verbose or dry_run:
-            print( f'Copying {final_target}' )
+            print(f'Copying {final_target}')
 
         if not dry_run:
-            shutil.copytree( real_src, final_target )
+            shutil.copytree(real_src, final_target)
     except FileExistsError:
-        print( f'Skipped {final_target}', file=sys.stderr )
+        print(f'Skipped {final_target}', file=sys.stderr)
+
 
 def main():
     '''The main function'''
     parser = argparse.ArgumentParser(
-            description='Copy audio files to Roon library' )
-    parser.add_argument( '-t', '--target', action='store', dest='target',
-                         default='flac',
-                         help='Target directory (cd, dsd, flac, mqa)' )
-    parser.add_argument( '-D', '--dry_run', action='store_true', dest='dry_run',
-                         help='Dry run' )
-    parser.add_argument( '-d', '--dir', action='store_true', dest='dir',
-                         help='Copy each folder in the source instead' )
-    parser.add_argument( '-v', '--verbose', action='store_true',
-                         dest='verbose', help='Print log message' )
-    parser.add_argument( 'sources', nargs='*' )
+            description='Copy audio files to Roon library')
+    parser.add_argument('-t', '--target', action='store', dest='target',
+                        default='flac',
+                        help='Target directory (cd, dsd, flac, mqa)')
+    parser.add_argument('-D', '--dry_run', action='store_true', dest='dry_run',
+                        help='Dry run')
+    parser.add_argument('-d', '--dir', action='store_true', dest='dir',
+                        help='Copy each folder in the source instead')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        dest='verbose', help='Print log message')
+    parser.add_argument('sources', nargs='*')
 
     args = parser.parse_args()
-    if len( args.sources ) == 0:
-        print( 'Nothing to copy' )
-        sys.exit( 1 )
+    if len(args.sources) == 0:
+        print('Nothing to copy')
+        sys.exit(1)
 
-    config_data = load_config( CONFIG_FILENAME, args.verbose )
-    sanity_check( config_data )
+    config_data = load_config(CONFIG_FILENAME, args.verbose)
+    sanity_check(config_data)
 
-    destination = config_data.get( 'destination' )
-    dst = os.path.join( destination, args.target )
+    destination = config_data.get('destination')
+    dst = os.path.join(destination, args.target)
     if args.dir:
         # We assume that all ablums that need to be copied are placed
         # in one folder. Then we can just run 'rooncpy -d <src>'.
@@ -110,20 +114,21 @@ def main():
         # of treating <src> as an album. To be on the safe side, we
         # limit the number of <src> to be just one. It doesn't make sense
         # to have more than one source anyway.
-        if len( args.sources ) != 1:
-            print( 'With the dir option, only one source is accepted' )
-            sys.exit( 1 )
+        if len(args.sources) != 1:
+            print('With the dir option, only one source is accepted')
+            sys.exit(1)
 
-        prefix = args.sources[ 0 ]
-        for folder in sorted( os.listdir( prefix ) ):
-            if folder in config_data[ "skip_dir" ]:
+        prefix = args.sources[0]
+        for folder in sorted(os.listdir(prefix)):
+            if folder in config_data["skip_dir"]:
                 continue
-            copy_files( folder, dst, prefix=prefix, verbose=args.verbose,
-                        dry_run=args.dry_run )
+            copy_files(folder, dst, prefix=prefix, verbose=args.verbose,
+                       dry_run=args.dry_run)
     else:
-        for src in sorted( args.sources ):
-            copy_files( src, dst, verbose=args.verbose,
-                        dry_run=args.dry_run )
+        for src in sorted(args.sources):
+            copy_files(src, dst, verbose=args.verbose,
+                       dry_run=args.dry_run)
+
 
 if __name__ == '__main__':
     main()
