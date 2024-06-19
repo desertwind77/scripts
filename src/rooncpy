@@ -102,7 +102,7 @@ def main():
         print('Nothing to copy')
         sys.exit(1)
 
-    config_data = load_config(CONFIG_FILENAME, args.verbose)
+    config_data = load_config(__file__, CONFIG_FILENAME, args.verbose)
     sanity_check(config_data)
 
     destination = config_data.get('destination')

@@ -17,6 +17,5 @@ then
 fi
 
 source $venv_dir/bin/activate
-config=$script_dir/config/vmgr.json
-$script_dir/$name.py $config "$@"
+$script_dir/$name.py "$@"
 deactivate

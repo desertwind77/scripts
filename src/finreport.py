@@ -20,6 +20,8 @@ from rich.traceback import install
 from tabulate import tabulate, SEPARATING_LINE
 import PyPDF2
 
+from utils import load_config
+
 CONFIG_FILENAME="config/finreport.json"
 
 class MissingRegexException( Exception ):
@@ -508,39 +510,13 @@ def process_command_line_arguments( config : dict ) -> argparse.Namespace:
                          help="Print more information" )
     return parser.parse_args()
 
-def load_config( config_filename : str, verbose : bool = False ) -> dict:
-    '''Load the configuration stored in a JSON file. The configuration must
-    be stored with the key 'config'.
-
-    args:
-        config_filename (str) : the JSON file storing the configuration
-        verbose (bool) : print the debug information or not
-
-    returns:
-        a dictionary containing the configuration
-    '''
-    # __file__ stores the absolute path of the python script
-    # realpath() return the canonical path of the specified
-    # filename by eliminating any symbolic links encountered
-    # in the path
-    script_path = os.path.realpath( os.path.dirname( __file__ ) )
-    config_abs_filename = os.path.join( script_path, config_filename )
-
-    config = None
-    with open( config_abs_filename, encoding="utf-8" ) as config_file:
-        if verbose:
-            print( f'Loading config file: {config_abs_filename}' )
-        config_data = json.load( config_file )
-        config = config_data.get( 'config', None )
-    return config
-
 
 def main():
     '''The main program'''
     # Install rich traceback to override the default python traceback
     install()
 
-    config = load_config( CONFIG_FILENAME )
+    config = load_config( __file__, CONFIG_FILENAME )
     args = process_command_line_arguments( config )
     account = args.account
     category = args.category

@@ -167,8 +167,8 @@ def main():
     '''Main program'''
     args = process_command_line_argument()
     try:
-        config = load_config(CONFIG_FILE)
-    except FileNotFoundError(name) as exception:
+        config = load_config(__file__, CONFIG_FILE)
+    except FileNotFoundError as exception:
         print(exception)
         sys.exit(1)
 

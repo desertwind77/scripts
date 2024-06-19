@@ -95,12 +95,16 @@ def check_exists(name: str, is_file: bool):
             raise NotADirectoryError(name)
 
 
-def load_config(config_filename: str, verbose: bool = False) -> dict:
+def load_config(script_file:str, config_filename: str,
+                verbose: bool = False) -> dict:
     '''Load the configuration stored in a JSON file. The configuration must
     be stored with the key 'config'.
 
     args:
+        script_file (str): the script that calls this function
+
         config_filename (str): the JSON file storing the configuration
+
         verbose (bool): print the debug information or not
 
     returns:
@@ -110,7 +114,7 @@ def load_config(config_filename: str, verbose: bool = False) -> dict:
     # realpath() return the canonical path of the specified
     # filename by eliminating any symbolic links encountered
     # in the path
-    script_path = os.path.realpath(os.path.dirname(__file__))
+    script_path = os.path.realpath(os.path.dirname(script_file))
     config_abs_filename = os.path.join(script_path, config_filename)
     check_exists(config_abs_filename, is_file=True)
 

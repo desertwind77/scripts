@@ -10,10 +10,13 @@ import shutil
 import sys
 
 from tabulate import tabulate
-from utils import ConfigFileBase, check_exists, execute, setup_logging
+from utils import load_config, check_exists, execute, setup_logging
 
 
-class PluginConfig(ConfigFileBase):
+CONFIG = 'config/vmgr.json'
+
+
+class PluginConfig:
     '''Information about vim plugins from the config'''
     def __init__(self, filename: str) -> None:
         '''Constructor
@@ -21,11 +24,11 @@ class PluginConfig(ConfigFileBase):
         Args:
             filename (str): the JSON configuration file
         '''
-        super().__init__(filename)
-        self.plugins = self.config['Plugins']
-        self.vim_dir = self.config['InstallInfo']['VimDir']
-        self.plugin_dir = self.config['InstallInfo']['PluginDir']
-        self.git_repo = self.config['InstallInfo']['GitRepo']
+        config = load_config(__file__, filename)
+        self.plugins = config['Plugins']
+        self.vim_dir = config['InstallInfo']['VimDir']
+        self.plugin_dir = config['InstallInfo']['PluginDir']
+        self.git_repo = config['InstallInfo']['GitRepo']
 
 
 class ViPluginManager:
@@ -182,7 +185,6 @@ def parse_argv() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='vi plugin manager')
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                         help='Print log message')
-    parser.add_argument('config', action='store', help='configuraiton file')
 
     subparser = parser.add_subparsers(dest='command')
     subparser.required = True
@@ -212,7 +214,7 @@ def main():
     args = parse_argv()
     setup_logging(verbose=True)
 
-    manager = ViPluginManager(args.config)
+    manager = ViPluginManager(CONFIG)
     if args.command == 'install':
         manager.install(args.force)
     elif args.command == 'uninstall':

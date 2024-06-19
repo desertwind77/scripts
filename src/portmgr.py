@@ -331,7 +331,7 @@ def main():
     arguments = CommandLineArgument()
 
     try:
-        config = load_config(CONFIG_FILE)
+        config = load_config(__file__, CONFIG_FILE)
         check_portfolio_sanity(config)
         next_index = get_next_index(config)
 
