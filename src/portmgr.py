@@ -231,6 +231,8 @@ class Portfolio:
         all_files = list(path_obj.iterdir())
         # Skip hidden files which start with '.'
         all_files = [f for f in all_files if f.name[0] != '.']
+        # Process only .jpg files
+        all_files = [f for f in all_files if str(f).endswith('.jpg')]
         keyword_dict = defaultdict(list)
         for image in all_files:
             keywords = self.get_key_words(image)
