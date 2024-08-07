@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>finreport module &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="portmgr module" href="portmgr.html" />
+    <link rel="prev" title="flac2mp3 module" href="flac2mp3.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="test.html">test package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quote.html">quote module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vmgr.html">vmgr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocab.html">vocab module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zipall.html">zipall module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tic_tac_toe.html">tic_tac_toe module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdfmgr.html">pdfmgr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txt2mp3.html">txt2mp3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flac2mp3.html">flac2mp3 module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">finreport module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.Account"><code class="docutils literal notranslate"><span class="pre">Account</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.CreditReport"><code class="docutils literal notranslate"><span class="pre">CreditReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.calculate_expenses_by_category"><code class="docutils literal notranslate"><span class="pre">CreditReport.calculate_expenses_by_category()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.generate_statements_from_files"><code class="docutils literal notranslate"><span class="pre">CreditReport.generate_statements_from_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.load_account_config"><code class="docutils literal notranslate"><span class="pre">CreditReport.load_account_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.load_all_transactions"><code class="docutils literal notranslate"><span class="pre">CreditReport.load_all_transactions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.load_category_config"><code class="docutils literal notranslate"><span class="pre">CreditReport.load_category_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.print_expense_summary"><code class="docutils literal notranslate"><span class="pre">CreditReport.print_expense_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.print_expense_summary_by_account_type"><code class="docutils literal notranslate"><span class="pre">CreditReport.print_expense_summary_by_account_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.query"><code class="docutils literal notranslate"><span class="pre">CreditReport.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.CreditReport.run"><code class="docutils literal notranslate"><span class="pre">CreditReport.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.MissingRegexException"><code class="docutils literal notranslate"><span class="pre">MissingRegexException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.MissingTransactionException"><code class="docutils literal notranslate"><span class="pre">MissingTransactionException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.Statement"><code class="docutils literal notranslate"><span class="pre">Statement</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.Statement.cleanup_description"><code class="docutils literal notranslate"><span class="pre">Statement.cleanup_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.Statement.get_category"><code class="docutils literal notranslate"><span class="pre">Statement.get_category()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.Statement.load_csv_file"><code class="docutils literal notranslate"><span class="pre">Statement.load_csv_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.Statement.load_pdf_file"><code class="docutils literal notranslate"><span class="pre">Statement.load_pdf_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finreport.Statement.load_transactions"><code class="docutils literal notranslate"><span class="pre">Statement.load_transactions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.Transaction"><code class="docutils literal notranslate"><span class="pre">Transaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.UnknownAccountException"><code class="docutils literal notranslate"><span class="pre">UnknownAccountException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.UnknownDataTypeInConfigException"><code class="docutils literal notranslate"><span class="pre">UnknownDataTypeInConfigException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.UnknownTransactionCategoryException"><code class="docutils literal notranslate"><span class="pre">UnknownTransactionCategoryException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finreport.process_command_line_arguments"><code class="docutils literal notranslate"><span class="pre">process_command_line_arguments()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="portmgr.html">portmgr module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">finreport module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/finreport.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-finreport">
+<span id="finreport-module"></span><h1>finreport module<a class="headerlink" href="#module-finreport" title="Link to this heading"></a></h1>
+<p>Show or queyr my expense summary</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="finreport.Account">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">Account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_regex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_year_in_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_positive_expenses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Account"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Account" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class to represent an account</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="finreport.CreditReport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">CreditReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statement_location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The main class to process credit card and bank statements</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.calculate_expenses_by_category">
+<span class="sig-name descname"><span class="pre">calculate_expenses_by_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">known_categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.calculate_expenses_by_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.calculate_expenses_by_category" title="Link to this definition"></a></dt>
+<dd><p>Calculate expenses by ( account type, category )</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>known_categories (str) : a dictionary of ( account_type, categories )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.generate_statements_from_files">
+<span class="sig-name descname"><span class="pre">generate_statements_from_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.generate_statements_from_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.generate_statements_from_files" title="Link to this definition"></a></dt>
+<dd><p>Create a Statement object for each available statement files on the drive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.load_account_config">
+<span class="sig-name descname"><span class="pre">load_account_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.load_account_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.load_account_config" title="Link to this definition"></a></dt>
+<dd><p>Create an Account object whic represents an account</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.load_all_transactions">
+<span class="sig-name descname"><span class="pre">load_all_transactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.load_all_transactions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.load_all_transactions" title="Link to this definition"></a></dt>
+<dd><p>Load all transactions in all statements and add them to the right categories</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>verbose (bool) : print the debug info</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.load_category_config">
+<span class="sig-name descname"><span class="pre">load_category_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.load_category_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.load_category_config" title="Link to this definition"></a></dt>
+<dd><p>Create a dictionary from ‘expense’ to category</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.print_expense_summary">
+<span class="sig-name descname"><span class="pre">print_expense_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.print_expense_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.print_expense_summary" title="Link to this definition"></a></dt>
+<dd><p>Print expense summary</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>plain (bool) : print the output using plain text</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.print_expense_summary_by_account_type">
+<span class="sig-name descname"><span class="pre">print_expense_summary_by_account_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.print_expense_summary_by_account_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.print_expense_summary_by_account_type" title="Link to this definition"></a></dt>
+<dd><p>Print the financial report where it is grouped by the account type</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>account_type (str) : account type
+plain (bool) : print the output using plain text</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.query" title="Link to this definition"></a></dt>
+<dd><p>Query transactions based on account, month, and category if any of these
+critria are specified.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>account (str) : the account name to query
+month (int) : the month to query
+category (str) : the category to query
+group_by_account (bool) : group the transactions by account or not
+verbose (bool) : print the debug info or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.CreditReport.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#CreditReport.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.CreditReport.run" title="Link to this definition"></a></dt>
+<dd><p>This function has two use cases.</p>
+<ol class="arabic simple">
+<li><p>Print the financial summary for all the statements in a year.</p></li>
+<li><p>Query transactions based on account, month, and category if
+any of these critria are specified.</p></li>
+</ol>
+<dl class="simple">
+<dt>Args:</dt><dd><p>account (str) : the account name to query
+month (int) : the month to query
+category (str) : the category to query
+group_by_account (bool) : group the transactions by account or not
+plain (bool) : print the output using plain text
+verbose (bool) : print the debug info or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="finreport.MissingRegexException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">MissingRegexException</span></span><a class="reference internal" href="_modules/finreport.html#MissingRegexException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.MissingRegexException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>No regular expression to parse a pdf file</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="finreport.MissingTransactionException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">MissingTransactionException</span></span><a class="reference internal" href="_modules/finreport.html#MissingTransactionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.MissingTransactionException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Some transactions in a PDF file were not recognized</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="finreport.Statement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">Statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class to represent a credit card or a bank statement containing transactions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.Statement.cleanup_description">
+<span class="sig-name descname"><span class="pre">cleanup_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/finreport.html#Statement.cleanup_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement.cleanup_description" title="Link to this definition"></a></dt>
+<dd><p>Replace unwanted characters that may confuse the regular expression</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>description (str) : the description of a transaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.Statement.get_category">
+<span class="sig-name descname"><span class="pre">get_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/finreport.html#Statement.get_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement.get_category" title="Link to this definition"></a></dt>
+<dd><p>Get the category of a transaction</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>description (str) : the description of a transaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.Statement.load_csv_file">
+<span class="sig-name descname"><span class="pre">load_csv_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Statement.load_csv_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement.load_csv_file" title="Link to this definition"></a></dt>
+<dd><p>Read and categorize all transactions from a .csv file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.Statement.load_pdf_file">
+<span class="sig-name descname"><span class="pre">load_pdf_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Statement.load_pdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement.load_pdf_file" title="Link to this definition"></a></dt>
+<dd><p>Read and categorize all transactions from a .pdf file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="finreport.Statement.load_transactions">
+<span class="sig-name descname"><span class="pre">load_transactions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Statement.load_transactions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Statement.load_transactions" title="Link to this definition"></a></dt>
+<dd><p>Read and categorize all transactions from a statement</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="finreport.Transaction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">Transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#Transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.Transaction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class to represents a transaction</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="finreport.UnknownAccountException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">UnknownAccountException</span></span><a class="reference internal" href="_modules/finreport.html#UnknownAccountException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.UnknownAccountException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>A statement doesn’t match with accounts defined in the config</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="finreport.UnknownDataTypeInConfigException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">UnknownDataTypeInConfigException</span></span><a class="reference internal" href="_modules/finreport.html#UnknownDataTypeInConfigException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.UnknownDataTypeInConfigException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Unknown data type found in the config (expectint str or dict)</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="finreport.UnknownTransactionCategoryException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">UnknownTransactionCategoryException</span></span><a class="reference internal" href="_modules/finreport.html#UnknownTransactionCategoryException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.UnknownTransactionCategoryException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Transactions with unknown categories exists</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finreport.main">
+<span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finreport.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.main" title="Link to this definition"></a></dt>
+<dd><p>The main program</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finreport.process_command_line_arguments">
+<span class="sig-prename descclassname"><span class="pre">finreport.</span></span><span class="sig-name descname"><span class="pre">process_command_line_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span><a class="reference internal" href="_modules/finreport.html#process_command_line_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finreport.process_command_line_arguments" title="Link to this definition"></a></dt>
+<dd><p>Process command line arguments</p>
+<dl class="simple">
+<dt>args:</dt><dd><p>config : the configuration dictionary. This is loaded from a JSON file</p>
+</dd>
+<dt>return:</dt><dd><p>a parsed argparse namespace</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="flac2mp3.html" class="btn btn-neutral float-left" title="flac2mp3 module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="portmgr.html" class="btn btn-neutral float-right" title="portmgr module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
