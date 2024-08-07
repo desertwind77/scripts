@@ -1,4 +1,4 @@
-{ 
+{
    "config" : {
       "Destinations" : {
          "SourcePortFolio" : "/Volumes/G-RAID/Photo/Portfolio",
@@ -16,7 +16,7 @@
                      "SelectedSubDir" : "Web"
                   },
                   "SourcePhotoFrame" : {
-                     "SelectedDir" : [ "2016", "2018", "2019", "2023", "iphone" ]
+                     "SelectedDir" : [ "2016", "2018", "2019", "2023", "2024", "iphone" ]
                   }
                }
             },
