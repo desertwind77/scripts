@@ -108,9 +108,18 @@ class FileList:
     '''A list of all files, excluding extension, in a folder.
     We will use this to compare if two folders contain the same file or not.
     '''
+    ignoreFileExt = [ '.xmp' ]
+
     def __init__(self, folder, keep_extension=False):
         self.folder = folder
         self.files = self.list_file(keep_extension)
+
+    def ignored( self, filename ):
+        '''Check if the file should be ignored'''
+        for ext in self.ignoreFileExt:
+            if filename.endswith( ext ):
+                return True
+        return False
 
     def list_file(self, keep_extension=False):
         '''List and return all files in the directory'''
@@ -118,6 +127,7 @@ class FileList:
         content = [
             name for name in os.listdir(self.folder)
             if name[0] != '.' and
+            not self.ignored( name ) and
             os.path.isfile(os.path.join(self.folder, name))
         ]
         if not keep_extension:
