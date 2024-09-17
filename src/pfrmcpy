@@ -169,7 +169,7 @@ def main():
     try:
         config = load_config(__file__, CONFIG_FILE)
     except FileNotFoundError as exception:
-        print(exception)
+        print( f'File not found {exception}' )
         sys.exit(1)
 
     dir_copy_list = get_src_dst_folder_pairs(config)
