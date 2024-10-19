@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>finreport &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">finreport</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for finreport</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&#39;&#39;&#39;Show or queyr my expense summary&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="c1"># tabulate doc : https://pypi.org/project/tabulate/</span>
+<span class="c1"># pylint: disable=import-error</span>
+<span class="c1"># pylint: disable=too-many-arguments</span>
+<span class="c1"># pylint: disable=too-many-branches</span>
+<span class="kn">from</span> <span class="nn">rich.console</span> <span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">rich.traceback</span> <span class="kn">import</span> <span class="n">install</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span><span class="p">,</span> <span class="n">SEPARATING_LINE</span>
+<span class="kn">import</span> <span class="nn">PyPDF2</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">load_config</span>
+
+<span class="n">CONFIG_FILENAME</span><span class="o">=</span><span class="s2">&quot;config/finreport.json&quot;</span>
+
+<div class="viewcode-block" id="MissingRegexException">
+<a class="viewcode-back" href="../finreport.html#finreport.MissingRegexException">[docs]</a>
+<span class="k">class</span> <span class="nc">MissingRegexException</span><span class="p">(</span> <span class="ne">Exception</span> <span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;No regular expression to parse a pdf file&#39;&#39;&#39;</span></div>
+
+    <span class="c1"># Currently, it is not in use because we stop parsing the .pdf</span>
+    <span class="c1"># bank statement. The transaction format in the .pdf statemnt</span>
+    <span class="c1"># keeps changing. It is burdensome to keep maintaining the</span>
+    <span class="c1"># regular expression to parse these transactions.</span>
+
+<div class="viewcode-block" id="UnknownAccountException">
+<a class="viewcode-back" href="../finreport.html#finreport.UnknownAccountException">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownAccountException</span><span class="p">(</span> <span class="ne">Exception</span> <span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;A statement doesn&#39;t match with accounts defined in the config&#39;&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="UnknownDataTypeInConfigException">
+<a class="viewcode-back" href="../finreport.html#finreport.UnknownDataTypeInConfigException">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownDataTypeInConfigException</span><span class="p">(</span> <span class="ne">Exception</span> <span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Unknown data type found in the config (expectint str or dict)&#39;&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="UnknownTransactionCategoryException">
+<a class="viewcode-back" href="../finreport.html#finreport.UnknownTransactionCategoryException">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownTransactionCategoryException</span><span class="p">(</span> <span class="ne">Exception</span> <span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Transactions with unknown categories exists&#39;&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="MissingTransactionException">
+<a class="viewcode-back" href="../finreport.html#finreport.MissingTransactionException">[docs]</a>
+<span class="k">class</span>  <span class="nc">MissingTransactionException</span><span class="p">(</span> <span class="ne">Exception</span> <span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Some transactions in a PDF file were not recognized&#39;&#39;&#39;</span></div>
+
+
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<div class="viewcode-block" id="Account">
+<a class="viewcode-back" href="../finreport.html#finreport.Account">[docs]</a>
+<span class="k">class</span> <span class="nc">Account</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The class to represent an account&#39;&#39;&#39;</span>
+    <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">account_type</span><span class="p">,</span>
+                  <span class="n">check_regex</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">has_year_in_date</span><span class="p">,</span>
+                  <span class="n">has_positive_expenses</span><span class="p">,</span> <span class="n">has_header</span><span class="p">,</span> <span class="n">fields</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">enabled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account_type</span> <span class="o">=</span> <span class="n">account_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_regex</span> <span class="o">=</span> <span class="n">check_regex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">regex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_year_in_date</span> <span class="o">=</span> <span class="n">has_year_in_date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_positive_expenses</span> <span class="o">=</span> <span class="n">has_positive_expenses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_header</span> <span class="o">=</span> <span class="n">has_header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span> <span class="s1">&#39;.pdf&#39;</span> <span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingRegexException</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="p">)</span></div>
+
+
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="Transaction">
+<a class="viewcode-back" href="../finreport.html#finreport.Transaction">[docs]</a>
+<span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The class to represents a transaction&#39;&#39;&#39;</span>
+    <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">statement</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">amount</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statement</span> <span class="o">=</span> <span class="n">statement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="n">amount</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%Y&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">   </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s1">   </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+<div class="viewcode-block" id="Statement">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement">[docs]</a>
+<span class="k">class</span> <span class="nc">Statement</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The class to represent a credit card or a bank statement containing transactions&#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">account</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category_info</span> <span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span> <span class="o">=</span> <span class="n">category_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Statement.get_category">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement.get_category">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_category</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">description</span> <span class="p">:</span> <span class="nb">str</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Get the category of a transaction</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            description (str) : the description of a transaction</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">account_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">account_type</span>
+        <span class="n">known_category</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">merchant</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span> <span class="n">merchant</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="p">):</span>
+                <span class="n">known_category</span> <span class="o">=</span> <span class="n">category</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">known_category</span></div>
+
+
+<div class="viewcode-block" id="Statement.cleanup_description">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement.cleanup_description">[docs]</a>
+    <span class="k">def</span> <span class="nf">cleanup_description</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">description</span> <span class="p">:</span> <span class="nb">str</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Replace unwanted characters that may confuse the regular expression</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            description (str) : the description of a transaction</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="s1">&#39;Replace&#39;</span> <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Statement.load_transactions">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement.load_transactions">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_transactions</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Read and categorize all transactions from a statement&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span> <span class="s1">&#39;pdf&#39;</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_pdf_file</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span> <span class="s1">&#39;csv&#39;</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_csv_file</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="Statement.load_csv_file">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement.load_csv_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_csv_file</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Read and categorize all transactions from a .csv file&#39;&#39;&#39;</span>
+        <span class="n">field_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;Transaction Date&#39;</span> <span class="p">]</span>
+        <span class="n">field_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;SEARCH&#39;</span> <span class="p">]</span>
+        <span class="n">field_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;Amount&#39;</span> <span class="p">]</span>
+
+        <span class="n">account_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">account_type</span>
+        <span class="n">ignored_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="s1">&#39;Ignored&#39;</span> <span class="p">][</span> <span class="n">account_type</span> <span class="p">]</span>
+
+        <span class="n">skip_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">has_header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span> <span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span> <span class="n">file</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">skip_header</span><span class="p">:</span>
+                    <span class="n">skip_header</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span> <span class="n">row</span><span class="p">[</span> <span class="n">field_date</span> <span class="p">],</span> <span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y&#39;</span> <span class="p">)</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_description</span><span class="p">(</span> <span class="n">row</span><span class="p">[</span> <span class="n">field_desc</span> <span class="p">]</span> <span class="p">)</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span> <span class="n">field_amount</span> <span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+                <span class="n">modifier</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;\(([0-9.]+)\)&#39;</span><span class="p">,</span> <span class="n">amount</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">obj</span><span class="p">:</span>
+                    <span class="n">amount</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span>
+                    <span class="n">modifier</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="n">modifier</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span> <span class="n">amount</span> <span class="p">),</span> <span class="mi">2</span> <span class="p">)</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">amount</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">has_positive_expenses</span> <span class="k">else</span> <span class="n">amount</span>
+                <span class="n">category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">(</span> <span class="n">description</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">ignored_categories</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">amount</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span> <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="Statement.load_pdf_file">
+<a class="viewcode-back" href="../finreport.html#finreport.Statement.load_pdf_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_pdf_file</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Read and categorize all transactions from a .pdf file&#39;&#39;&#39;</span>
+        <span class="n">field_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;Transaction Date&#39;</span> <span class="p">]</span>
+        <span class="n">field_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;Description&#39;</span> <span class="p">]</span>
+        <span class="n">field_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span> <span class="s1">&#39;Amount&#39;</span> <span class="p">]</span>
+
+        <span class="n">account_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">account_type</span>
+        <span class="n">ignored_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="s1">&#39;Ignored&#39;</span> <span class="p">][</span> <span class="n">account_type</span> <span class="p">]</span>
+
+        <span class="c1"># Get the year from filename for the statements in which</span>
+        <span class="c1"># no year in the transaction date</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="p">)</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span> <span class="p">)[</span> <span class="p">:</span><span class="mi">4</span> <span class="p">]</span> \
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">has_year_in_date</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">PyPDF2</span><span class="o">.</span><span class="n">PdfReader</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">pages</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="n">page</span><span class="o">.</span><span class="n">extract_text</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">regex</span><span class="p">:</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span> <span class="n">regex</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span> <span class="n">text</span> <span class="p">):</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="n">field_date</span> <span class="p">)</span>
+                <span class="c1"># pylint: disable=fixme</span>
+                <span class="c1"># FIXME: assuming the date is in the format mm/dd</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">year</span> <span class="k">else</span> <span class="n">date</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span> <span class="n">date</span><span class="p">,</span> <span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y&#39;</span> <span class="p">)</span>
+
+                <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_description</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="n">field_desc</span> <span class="p">)</span> <span class="p">)</span>
+
+                <span class="n">amount</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="n">field_amount</span> <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span> <span class="n">amount</span> <span class="p">),</span> <span class="mi">2</span> <span class="p">)</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">amount</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">has_positive_expenses</span> <span class="k">else</span> <span class="n">amount</span>
+
+                <span class="n">category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">(</span> <span class="n">description</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">ignored_categories</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">amount</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span> <span class="p">)</span>
+
+        <span class="c1"># Double check to make sure that we process all the transactions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">check_regex</span><span class="p">:</span>
+            <span class="n">check_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">check_regex</span><span class="p">,</span> <span class="n">line</span> <span class="p">):</span>
+                    <span class="n">check_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">!=</span> <span class="n">check_count</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingTransactionException</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span> <span class="p">),</span> <span class="n">count</span><span class="p">,</span> <span class="n">check_count</span> <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="CreditReport">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport">[docs]</a>
+<span class="k">class</span> <span class="nc">CreditReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The main class to process credit card and bank statements&#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">statement_location</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statement_location</span> <span class="o">=</span> <span class="n">statement_location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="CreditReport.load_account_config">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.load_account_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_account_config</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an Account object whic represents an account&quot;&quot;&quot;</span>
+        <span class="n">account_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span> <span class="s1">&#39;Accounts&#39;</span> <span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">account_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">enabled</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span> <span class="s1">&#39;Enabled&#39;</span> <span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span> <span class="s1">&#39;Filename&#39;</span> <span class="p">]</span>
+            <span class="n">account_type</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span> <span class="s1">&#39;Type&#39;</span> <span class="p">]</span>
+            <span class="n">check_regex</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s1">&#39;Check Regex&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s1">&#39;Regex&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="p">)</span>
+            <span class="n">has_year_in_date</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span> <span class="s1">&#39;Has Transaction Year&#39;</span> <span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
+            <span class="n">has_positive_expenses</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Has Postive Expenses&#39;</span> <span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
+            <span class="n">has_header</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s1">&#39;Header&#39;</span><span class="p">,</span> <span class="kc">False</span> <span class="p">)</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span> <span class="s1">&#39;Fields&#39;</span> <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">account_info</span><span class="p">[</span> <span class="n">name</span> <span class="p">]</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">account_type</span><span class="p">,</span>
+                                                 <span class="n">check_regex</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">has_year_in_date</span><span class="p">,</span>
+                                                 <span class="n">has_positive_expenses</span><span class="p">,</span>
+                                                 <span class="n">has_header</span><span class="p">,</span> <span class="n">fields</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.load_category_config">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.load_category_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_category_config</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Create a dictionary from &#39;expense&#39; to category&#39;&#39;&#39;</span>
+        <span class="n">category_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span> <span class="s1">&#39;Category&#39;</span> <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">account_type</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;Credit Card&quot;</span><span class="p">,</span> <span class="s2">&quot;Bank Account&quot;</span> <span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">account_category_data</span> <span class="o">=</span> <span class="n">category_data</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span>
+            <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">expenses</span> <span class="ow">in</span> <span class="n">account_category_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">expense</span><span class="p">,</span> <span class="nb">dict</span> <span class="p">):</span>
+                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">expense</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">][</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="n">category</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">expense</span><span class="p">,</span> <span class="nb">str</span> <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">][</span> <span class="n">expense</span> <span class="p">]</span> <span class="o">=</span> <span class="n">category</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">UnknownDataTypeInConfigException</span><span class="p">(</span> <span class="nb">type</span><span class="p">(</span> <span class="n">expense</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="s1">&#39;Ignored&#39;</span> <span class="p">]</span> <span class="o">=</span> <span class="n">category_data</span><span class="p">[</span> <span class="s1">&#39;Ignored&#39;</span> <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span><span class="p">[</span> <span class="s1">&#39;Replace&#39;</span> <span class="p">]</span> <span class="o">=</span> <span class="n">category_data</span><span class="p">[</span> <span class="s1">&#39;Replace&#39;</span> <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.generate_statements_from_files">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.generate_statements_from_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_statements_from_files</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Create a Statement object for each available statement files on the drive&#39;&#39;&#39;</span>
+        <span class="n">statement_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement_location</span> <span class="p">)</span>
+
+        <span class="n">statement_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">statement_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span> <span class="s1">&#39;*.pdf&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">statement_files</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">statement_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span> <span class="s1">&#39;*.csv&#39;</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">statement_file</span> <span class="ow">in</span> <span class="n">statement_files</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span> <span class="n">statement_file</span><span class="o">.</span><span class="n">name</span> <span class="p">)</span>
+            <span class="n">statement</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">account</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">account</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">obj</span><span class="p">:</span>
+                    <span class="n">statement</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span> <span class="n">statement_file</span> <span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_info</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">statement</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnknownAccountException</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span> <span class="n">statement_file</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">statement</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.calculate_expenses_by_category">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.calculate_expenses_by_category">[docs]</a>
+    <span class="k">def</span> <span class="nf">calculate_expenses_by_category</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">known_categories</span> <span class="p">:</span> <span class="nb">dict</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Calculate expenses by ( account type, category )</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            known_categories (str) : a dictionary of ( account_type, categories )</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">account_type</span><span class="p">,</span> <span class="n">categories</span> <span class="ow">in</span> <span class="n">known_categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">][</span> <span class="n">category</span> <span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">:</span>
+            <span class="n">account_type</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">account_type</span>
+            <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">statement</span><span class="o">.</span><span class="n">transactions</span><span class="p">:</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span> \
+                        <span class="p">[</span> <span class="n">transaction</span><span class="o">.</span><span class="n">category</span> <span class="p">][</span> <span class="n">transaction</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">month</span> <span class="p">]</span>
+                <span class="n">amount</span> <span class="o">+=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">amount</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span> <span class="n">amount</span><span class="p">,</span> <span class="mi">2</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">][</span> <span class="n">transaction</span><span class="o">.</span><span class="n">category</span> <span class="p">]</span> \
+                        <span class="p">[</span> <span class="n">transaction</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">month</span> <span class="p">]</span> <span class="o">=</span> <span class="n">amount</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.load_all_transactions">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.load_all_transactions">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_all_transactions</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Load all transactions in all statements and add them to the right categories</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            verbose (bool) : print the debug info</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span> <span class="p">):</span>
+            <span class="n">statement</span><span class="o">.</span><span class="n">load_transactions</span><span class="p">()</span>
+
+        <span class="c1"># See if there are any transactions without category</span>
+        <span class="n">unknown_transactions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">known_categories</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span> <span class="nb">list</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">statement</span><span class="o">.</span><span class="n">transactions</span><span class="p">:</span>
+                <span class="n">account_type</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">account_type</span>
+                <span class="k">if</span> <span class="n">transaction</span><span class="o">.</span><span class="n">category</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">unknown_transactions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">known_categories</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span><span class="o">.</span><span class="n">category</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unknown_transactions</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Unknown transactions:&#39;</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">unknown_transactions</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="n">Path</span><span class="p">(</span> <span class="n">transaction</span><span class="o">.</span><span class="n">statement</span><span class="o">.</span><span class="n">filename</span> <span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                       <span class="n">transaction</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">transaction</span><span class="o">.</span><span class="n">description</span> <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UnknownTransactionCategoryException</span>
+        <span class="k">for</span> <span class="n">account_type</span><span class="p">,</span> <span class="n">categories</span> <span class="ow">in</span> <span class="n">known_categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">known_categories</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span> <span class="n">categories</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculate_expenses_by_category</span><span class="p">(</span> <span class="n">known_categories</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.print_expense_summary_by_account_type">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.print_expense_summary_by_account_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_expense_summary_by_account_type</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">account_type</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                               <span class="n">plain</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Print the financial report where it is grouped by the account type</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            account_type (str) : account type</span>
+<span class="sd">            plain (bool) : print the output using plain text</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">):</span>
+            <span class="n">expenses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">][</span> <span class="n">category</span> <span class="p">]</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">round</span><span class="p">(</span> <span class="n">expenses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span> <span class="p">)</span> <span class="p">]</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span> <span class="n">row</span> <span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span> <span class="n">category</span> <span class="p">]</span> <span class="o">+</span> <span class="n">row</span> <span class="o">+</span> <span class="p">[</span> <span class="n">total</span> <span class="p">]</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">row</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">plain</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">SEPARATING_LINE</span> <span class="p">)</span>
+
+        <span class="n">total_row</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span> <span class="p">):</span>
+            <span class="n">monthly_expenses</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">expenses</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="p">[</span> <span class="n">account_type</span> <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">monthly_expenses</span> <span class="o">+=</span> <span class="n">expenses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="n">month</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+            <span class="n">total_row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span> <span class="n">monthly_expenses</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span> <span class="n">total_row</span> <span class="p">)</span>
+        <span class="n">total_row</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;Subtotal&#39;</span> <span class="p">]</span> <span class="o">+</span> <span class="n">total_row</span> <span class="o">+</span> <span class="p">[</span> <span class="n">total</span> <span class="p">]</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">total_row</span> <span class="p">)</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;Category&#39;</span><span class="p">,</span> <span class="s1">&#39;Jan&#39;</span><span class="p">,</span> <span class="s1">&#39;Feb&#39;</span><span class="p">,</span> <span class="s1">&#39;Mar&#39;</span><span class="p">,</span> <span class="s1">&#39;Apr&#39;</span><span class="p">,</span> <span class="s1">&#39;May&#39;</span><span class="p">,</span> <span class="s1">&#39;Jun&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Jul&#39;</span><span class="p">,</span> <span class="s1">&#39;Aug&#39;</span><span class="p">,</span> <span class="s1">&#39;Sep&#39;</span><span class="p">,</span> <span class="s1">&#39;Oct&#39;</span><span class="p">,</span> <span class="s1">&#39;Nov&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">,</span> <span class="s1">&#39;Total&#39;</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="n">plain</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">account_type</span><span class="si">}</span><span class="s1">]&#39;</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">tabulate</span><span class="p">(</span> <span class="n">table</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="n">intfmt</span><span class="o">=</span><span class="s2">&quot;,&quot;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+            <span class="n">rich_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">account_type</span><span class="si">}</span><span class="s1">&#39;</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">header</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;Jan&#39;</span><span class="p">,</span> <span class="s1">&#39;Mar&#39;</span><span class="p">,</span> <span class="s1">&#39;May&#39;</span><span class="p">,</span> <span class="s1">&#39;Jul&#39;</span><span class="p">,</span> <span class="s1">&#39;Sep&#39;</span><span class="p">,</span> <span class="s1">&#39;Nov&#39;</span> <span class="p">]:</span>
+                    <span class="n">rich_table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span> <span class="n">header</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bright_black&#39;</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">header</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;Feb&#39;</span><span class="p">,</span> <span class="s1">&#39;Apr&#39;</span><span class="p">,</span> <span class="s1">&#39;Jun&#39;</span><span class="p">,</span> <span class="s1">&#39;Aug&#39;</span><span class="p">,</span> <span class="s1">&#39;Oct&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span> <span class="p">]:</span>
+                    <span class="n">rich_table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span> <span class="n">header</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">header</span> <span class="o">==</span> <span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+                    <span class="n">rich_table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span> <span class="n">header</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;red&#39;</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rich_table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span> <span class="n">header</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;magenta&#39;</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span> <span class="n">r</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">r</span><span class="p">,</span> <span class="nb">str</span> <span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">row</span> <span class="p">]</span>
+                <span class="n">rich_table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="o">*</span><span class="n">row</span> <span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span> <span class="n">rich_table</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.print_expense_summary">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.print_expense_summary">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_expense_summary</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">plain</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Print expense summary</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            plain (bool) : print the output using plain text</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">account_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">expense_by_category</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_expense_summary_by_account_type</span><span class="p">(</span> <span class="n">account_type</span><span class="p">,</span> <span class="n">plain</span><span class="o">=</span><span class="n">plain</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.query">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.query">[docs]</a>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">account</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">month</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">category</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">group_by_account</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Query transactions based on account, month, and category if any of these</span>
+<span class="sd">        critria are specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            account (str) : the account name to query</span>
+<span class="sd">            month (int) : the month to query</span>
+<span class="sd">            category (str) : the category to query</span>
+<span class="sd">            group_by_account (bool) : group the transactions by account or not</span>
+<span class="sd">            verbose (bool) : print the debug info or not</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">query_str</span> <span class="o">=</span> <span class="s1">&#39;Query: &#39;</span>
+            <span class="k">if</span> <span class="n">account</span><span class="p">:</span>
+                <span class="n">query_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;account = </span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">, &#39;</span>
+            <span class="k">if</span> <span class="n">month</span><span class="p">:</span>
+                <span class="n">query_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;month = </span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s1">, &#39;</span>
+            <span class="k">if</span> <span class="n">category</span><span class="p">:</span>
+                <span class="n">query_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;category = </span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s1">, &#39;</span>
+            <span class="k">if</span> <span class="n">group_by_account</span><span class="p">:</span>
+                <span class="n">query_str</span> <span class="o">+=</span> <span class="s1">&#39;grouping = True&#39;</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">query_str</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span> <span class="nb">list</span> <span class="p">)</span> <span class="k">if</span> <span class="n">group_by_account</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">statement</span><span class="o">.</span><span class="n">transactions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">transaction</span><span class="o">.</span><span class="n">statement</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">account</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">month</span> <span class="ow">and</span> <span class="n">transaction</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">month</span> <span class="o">!=</span> <span class="n">month</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="ow">and</span> <span class="n">transaction</span><span class="o">.</span><span class="n">category</span> <span class="o">!=</span> <span class="n">category</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">result</span><span class="p">,</span> <span class="nb">list</span> <span class="p">):</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span> <span class="n">transaction</span><span class="o">.</span><span class="n">statement</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">name</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">transaction</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">result</span><span class="p">,</span> <span class="nb">list</span> <span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span> <span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">date</span> <span class="p">)</span>
+            <span class="nb">list</span><span class="p">(</span> <span class="nb">map</span><span class="p">(</span> <span class="nb">print</span><span class="p">,</span> <span class="n">result</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span> <span class="nb">sum</span><span class="p">(</span> <span class="n">t</span><span class="o">.</span><span class="n">amount</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">result</span> <span class="p">),</span> <span class="mi">2</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;Total = </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">result</span><span class="p">,</span> <span class="n">defaultdict</span> <span class="p">):</span>
+            <span class="k">for</span> <span class="n">account_name</span><span class="p">,</span> <span class="n">expenses</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="n">account_name</span> <span class="p">)</span>
+                <span class="n">expenses</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span> <span class="n">expenses</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">date</span> <span class="p">)</span>
+                <span class="nb">list</span><span class="p">(</span> <span class="nb">map</span><span class="p">(</span> <span class="nb">print</span><span class="p">,</span> <span class="n">expenses</span> <span class="p">)</span> <span class="p">)</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span> <span class="nb">sum</span><span class="p">(</span> <span class="n">t</span><span class="o">.</span><span class="n">amount</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">expenses</span> <span class="p">),</span> <span class="mi">2</span> <span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;Total = </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span> <span class="p">)</span>
+                <span class="nb">print</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="CreditReport.run">
+<a class="viewcode-back" href="../finreport.html#finreport.CreditReport.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">account</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">month</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">category</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">group_by_account</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">plain</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;This function has two use cases.</span>
+
+<span class="sd">        1. Print the financial summary for all the statements in a year.</span>
+
+<span class="sd">        2. Query transactions based on account, month, and category if</span>
+<span class="sd">           any of these critria are specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            account (str) : the account name to query</span>
+<span class="sd">            month (int) : the month to query</span>
+<span class="sd">            category (str) : the category to query</span>
+<span class="sd">            group_by_account (bool) : group the transactions by account or not</span>
+<span class="sd">            plain (bool) : print the output using plain text</span>
+<span class="sd">            verbose (bool) : print the debug info or not</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_account_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_category_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_statements_from_files</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_all_transactions</span><span class="p">(</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span> <span class="p">[</span> <span class="n">account</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">category</span> <span class="p">]</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_expense_summary</span><span class="p">(</span> <span class="n">plain</span><span class="o">=</span><span class="n">plain</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span> <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
+                        <span class="n">group_by_account</span><span class="o">=</span><span class="n">group_by_account</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span> <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="process_command_line_arguments">
+<a class="viewcode-back" href="../finreport.html#finreport.process_command_line_arguments">[docs]</a>
+<span class="k">def</span> <span class="nf">process_command_line_arguments</span><span class="p">(</span> <span class="n">config</span> <span class="p">:</span> <span class="nb">dict</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Process command line arguments</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        config : the configuration dictionary. This is loaded from a JSON file</span>
+
+<span class="sd">    return:</span>
+<span class="sd">        a parsed argparse namespace</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">accounts</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span> <span class="s1">&#39;Accounts&#39;</span> <span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span> <span class="s1">&#39;Category&#39;</span> <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;Ignored&#39;</span><span class="p">,</span> <span class="s1">&#39;Replace&#39;</span> <span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">category</span> <span class="o">+=</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;--account&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">accounts</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Account of interest&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--category&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Category of interest&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="s2">&quot;--group&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Group transactions by account&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;--location&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                         <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Locaiton of the statement files&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--month&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Month of interest&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;--year&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Year of interest&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--plain&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print the output using plain text&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print more information&quot;</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../finreport.html#finreport.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The main program&#39;&#39;&#39;</span>
+    <span class="c1"># Install rich traceback to override the default python traceback</span>
+    <span class="n">install</span><span class="p">()</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span> <span class="vm">__file__</span><span class="p">,</span> <span class="n">CONFIG_FILENAME</span> <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">process_command_line_arguments</span><span class="p">(</span> <span class="n">config</span> <span class="p">)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">account</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">category</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">group</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span> <span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">year</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">year</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+    <span class="n">plain</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">plain</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span> <span class="n">Path</span><span class="p">(</span> <span class="n">args</span><span class="o">.</span><span class="n">location</span> <span class="p">)</span><span class="o">/</span><span class="nb">str</span><span class="p">(</span> <span class="n">year</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span> <span class="n">location</span> <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1"> does not exist&#39;</span> <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">reporter</span> <span class="o">=</span> <span class="n">CreditReport</span><span class="p">(</span> <span class="n">config</span><span class="p">,</span> <span class="n">location</span> <span class="p">)</span>
+    <span class="n">reporter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span> <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
+                  <span class="n">group_by_account</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">plain</span><span class="o">=</span><span class="n">plain</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span> <span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
