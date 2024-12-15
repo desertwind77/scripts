@@ -12,8 +12,9 @@
 |portmgr|Copy photo to the storage| 
 |quote|Print a quote|
 |romsmgr|Rename and remove duplicated ROM files|
-|rooncpy|Copy files to the roon library |
+|rooncpy|Copy files to the roon library|
 |software|Print commands to install software on each platform|
+|ttt|Tic Tac Toe|
 |txt2mp3|Convert a text file to a MP3 file|
 |vmgr|Manage vim plugins|
 |vocab|Display a word and its meaning|
