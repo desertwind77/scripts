@@ -6,7 +6,7 @@
 # sake.
 #
 name=pdfmgr
-packages="PyPDF2"
+packages="PyPDF2 PyCryptodome"
 
 workspace=$HOME/Workspace
 venv_dir=$workspace/python_venv/$name
