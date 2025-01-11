@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>test.test_zipall &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">test.test_zipall</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for test.test_zipall</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&#39;&#39;&#39;Test file for the zipall.py script&#39;&#39;&#39;</span>
+
+<span class="c1"># pylint: disable=redefined-outer-name</span>
+<span class="c1"># pylint: disable=import-error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zipall</span><span class="w"> </span><span class="kn">import</span> <span class="n">zip_folder</span>
+
+
+<div class="viewcode-block" id="create_file">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.create_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Create a new temp file for our testing</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): the name of the file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
+        <span class="n">tmp_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;This is </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_folder_content">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.get_folder_content">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_folder_content</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Get the list of files and subfolders in the folder</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folder (str): the name of the folder</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[str]: the list of files and subfolders</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="folders">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.folders">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">folders</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Returns the folder names&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;folder1&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="hidden_files">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.hidden_files">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hidden_files</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Returns the hidden files&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;.hidden_file.txt&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="non_hidden_files">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.non_hidden_files">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">non_hidden_files</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Returns the non-hidden files&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;file1.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;file2.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;file3.txt&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="original_files">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.original_files">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">original_files</span><span class="p">(</span><span class="n">non_hidden_files</span><span class="p">,</span> <span class="n">hidden_files</span><span class="p">,</span> <span class="n">folders</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Returns both the hidden and non-hidden files&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">non_hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">folders</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="zip_files">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.zip_files">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">zip_files</span><span class="p">(</span><span class="n">non_hidden_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return the expected zip files in the temp directory&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">non_hidden_files</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="tmp_dir_name">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.tmp_dir_name">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tmp_dir_name</span><span class="p">(</span><span class="n">hidden_files</span><span class="p">,</span> <span class="n">non_hidden_files</span><span class="p">,</span> <span class="n">folders</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;This fixture creates a temporary directory and its original files.&#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">dir_name</span><span class="p">:</span>
+        <span class="c1"># Create a temp folder and some files in it</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">non_hidden_files</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">create_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">folder</span><span class="p">))</span>
+
+        <span class="c1"># If we return here, the context manager will clean up tmp_dir_name.</span>
+        <span class="c1"># So we yield, instead of return, here.</span>
+        <span class="k">yield</span> <span class="n">dir_name</span></div>
+
+
+
+<div class="viewcode-block" id="test_dry_run">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.test_dry_run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dry_run</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">original_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify the dry run mode&#39;&#39;&#39;</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">original_files</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="test_zip">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.test_zip">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">zip</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_zip</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">original_files</span><span class="p">,</span> <span class="n">zip_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify the zip functionality&#39;&#39;&#39;</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">original_files</span><span class="p">,</span> <span class="o">*</span><span class="n">zip_files</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="test_zip_delete">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.test_zip_delete">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">zip</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">delete</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_zip_delete</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">hidden_files</span><span class="p">,</span> <span class="n">folders</span><span class="p">,</span> <span class="n">zip_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify the zip functionality with the delete option&#39;&#39;&#39;</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">folders</span><span class="p">,</span> <span class="o">*</span><span class="n">zip_files</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="test_unzip">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.test_unzip">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unzip</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unzip</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">original_files</span><span class="p">,</span> <span class="n">hidden_files</span><span class="p">,</span>
+               <span class="n">folders</span><span class="p">,</span> <span class="n">zip_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify the unzip functionality&#39;&#39;&#39;</span>
+    <span class="c1"># Prepare the temp folder for further testing</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">folders</span><span class="p">,</span> <span class="o">*</span><span class="n">zip_files</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span>
+
+    <span class="c1"># Verify unzip</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">unzip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">original_files</span><span class="p">,</span> <span class="o">*</span><span class="n">zip_files</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="test_unzip_delete">
+<a class="viewcode-back" href="../../test.html#test.test_zipall.test_unzip_delete">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unzip</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">delete</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unzip_delete</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">original_files</span><span class="p">,</span> <span class="n">hidden_files</span><span class="p">,</span>
+                      <span class="n">folders</span><span class="p">,</span> <span class="n">zip_files</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify the unzip functionality with the delete option&#39;&#39;&#39;</span>
+    <span class="c1"># Prepare the temp folder for further testing</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="o">*</span><span class="n">hidden_files</span><span class="p">,</span> <span class="o">*</span><span class="n">folders</span><span class="p">,</span> <span class="o">*</span><span class="n">zip_files</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span>
+
+    <span class="c1"># Verify unzip with delete</span>
+    <span class="n">zip_folder</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">,</span> <span class="n">unzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">original_files</span> <span class="o">==</span> <span class="n">get_folder_content</span><span class="p">(</span><span class="n">tmp_dir_name</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
