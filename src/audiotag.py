@@ -1010,6 +1010,14 @@ class CleanupCmd( BaseCmd ):
             start, stop, disc = result
             for track_no in range( start, stop + 1 ):
                 audio = album.get_track( ( disc, track_no ) )
+                if audio is None:
+                    # This could happen when we use the command 'ta' to set the
+                    # track artist for a range of track but some of the tracks
+                    # in this range are missing. For example, when we run ta
+                    # 1-12 <some name> to set the track artist of track 1 to
+                    # track12, but track10 is missing.
+                    print( f'disc: {disc}, track: {track_no} is missing' )
+                    continue
                 if cmd.startswith( 'ta' ):
                     audio.artist = field
                 elif cmd.startswith( 'tt' ):
