@@ -23,7 +23,7 @@ from pydngconverter import DNGConverter, flags
 
 from utils import load_config
 
-CONFIG_FILENAME = "config/dngconvert.json"
+CONFIG_FILENAME = "config/raw2dng.json"
 
 IGNORED_FOLDERS = [ '.DS_Store' ]
 
