@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 '''
-Organize backup photo from iPhone by renaming them and store in the directory
-year/month
+Organize backup photos and videos from iPhone
+
+Assuming that the source folder is at /src, we will organize the files into
+/src/year/month/<date> <3-digit sequence number>.extension. The time is based
+on their modified date.
+
+Note that we don't check for file duplication.
 '''
 
 import argparse
@@ -13,17 +18,25 @@ import os
 import re
 import shutil
 
+from utils import load_config
+
+CONFIG_FILENAME="config/mobilemgr.json"
+
 @dataclass
 class RenameInfo:
     '''Information on a file to be renamed'''
-    src: str
-    dst: str
+    src: Path
+    dst: Path
 
-    def __lt__( self, other ):
+    def __lt__(self, other):
         return self.dst < other.dst
 
-    def __str__( self ):
-        return f'{self.src} -> {self.dst}'
+    def __str__(self):
+        return f'{self.src.absolute()} -> {self.dst.absolute()}'
+
+    def rename(self):
+        '''Rename the file'''
+        shutil.move(self.src.absolute(), self.dst.absolute())
 
 def populate_counter(cur_path, files):
     '''Populate the dictionary mapping from date to file count per date'''
@@ -60,9 +73,11 @@ def get_rename_info_list(cur_path, files, counter):
         ext = file.suffix.lower()
         dst_file = f'{mod_date_str} {date_counter:03d}{ext}'
         # Determine the final destination
-        dst = f'{dst_folder}/{dst_file}'
+        dst = cur_path / f'{dst_folder}/{dst_file}'
 
         if cur_path == file.parent:
+            # We assume that the backup files are dumped into cur_path. We want
+            # to skip all the subfolder of cur_path.
             if not os.path.isdir( dst_folder ):
                 os.makedirs( dst_folder )
             if os.path.exists(dst):
@@ -72,24 +87,16 @@ def get_rename_info_list(cur_path, files, counter):
 
     return rename_info
 
-def main():
-    '''The main program'''
-
-    # Parse the command line argument
-    parser = argparse.ArgumentParser()
-    parser.add_argument("source")
-    parser.add_argument('-d', '--dry-run',action='store_true',
-                        help='dry run')
-    args = parser.parse_args()
-
-    if not os.path.isdir(args.source):
-        print(f'The folder {args.source} does not exist')
+def organize(source, dry_run=False):
+    '''Organize files in the source folder'''
+    if not os.path.isdir(source):
+        print(f'The folder {source} does not exist')
         return
 
     # Save the current working directory
     cur_dir = os.getcwd()
     # Change to the folder to process
-    os.chdir(args.source)
+    os.chdir(source)
 
     cur_path = Path('.')
     files = sorted(list(cur_path.glob('**/*.*')))
@@ -97,13 +104,29 @@ def main():
     counter = populate_counter(cur_path, files)
     rename_info = get_rename_info_list(cur_path, files, counter)
 
-    for rename in sorted(rename_info):
-        if not args.dry_run:
-            shutil.move(rename.src, rename.dst)
-        print(rename)
+    for info in sorted(rename_info):
+        print(info)
+        if not dry_run:
+            info.rename()
 
     # Restore the original working directory
     os.chdir(cur_dir)
+
+def main():
+    '''The main program'''
+    config = load_config( __file__, CONFIG_FILENAME )
+    backups = config.get( 'mobile_backup' )
+    assert backups, f"mobile_backup is missing from {CONFIG_FILENAME}"
+    assert isinstance(backups, list)
+
+    # Parse the command line argument
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dry-run',action='store_true',
+                        help='dry run')
+    args = parser.parse_args()
+
+    for backup in backups:
+        organize(backup, dry_run=args.dry_run)
 
 if __name__ == '__main__':
     main()
