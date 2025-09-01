@@ -11,6 +11,7 @@ via brew.
 
 brew install freetype imagemagick
 '''
+from dataclasses import dataclass
 from pathlib import Path
 import argparse
 import asyncio
@@ -25,6 +26,12 @@ from utils import load_config
 CONFIG_FILENAME = "config/dngconvert.json"
 
 IGNORED_FOLDERS = [ '.DS_Store' ]
+
+@dataclass
+class ConvertInfo:
+    '''Conversion information'''
+    src: Path
+    dst: Path
 
 async def convert_raw_to_dng(input_folder, output_folder):
     """
@@ -47,12 +54,10 @@ def is_eligible(file_path):
     dng = f'{str(file_path.stem)}.dng'
     return not os.path.exists(dng)
 
-def process_location(source, dry_run=False):
+def find_convert_info(source, dry_run=False):
     '''Convert RAW files in the source folder'''
     # List of the temporary folders
-    tmp_folder_list = []
-
-    loop = asyncio.get_event_loop()
+    conversion_list = []
 
     src_path = Path(source)
     for folder in src_path.iterdir():
@@ -60,8 +65,7 @@ def process_location(source, dry_run=False):
             continue
 
         # Determine the RAW files
-        folder_path = Path(folder)
-        files = list(folder_path.glob('**/*.*'))
+        files = list(folder.glob('**/*.*'))
         files = sorted([f for f in files if is_eligible(f)])
 
         if not files:
@@ -69,32 +73,29 @@ def process_location(source, dry_run=False):
             continue
         print(f'Convert {folder}')
 
-        if dry_run:
-            continue
-
         # Create a temporary folder
-        tmp_folder = folder_path / 'tmp'
-        if not os.path.isdir(tmp_folder):
+        tmp_folder = folder / 'tmp'
+        if not os.path.isdir(tmp_folder) and not dry_run:
             os.makedirs(tmp_folder)
-            tmp_folder_list.append(tmp_folder)
 
         # Move the RAW files to the temporary folder
-        for file in files:
-            shutil.move(file, tmp_folder)
+        if not dry_run:
+            for file in files:
+                shutil.move(file, tmp_folder)
 
-        # Run the RAW converter
-        loop.run_until_complete(convert_raw_to_dng(tmp_folder, folder))
+        conversion_list.append(ConvertInfo(tmp_folder, folder))
 
-    loop.close()
+    return conversion_list
 
-    # Rename files
+def rename_file(source, dry_run=False):
+    '''Rename files'''
+    src_path = Path(source)
     for folder in src_path.iterdir():
         files = list(folder.glob('**/*.*'))
         files = [ f for f in files if str(f.suffix).lower() == '.dng' ]
         files = sorted(files)
         for seq, file in enumerate(files):
             if re.match(rf'{file.parent.stem} \d+', str(file.stem)):
-                print(f'Skip {file}')
                 continue
             dst = f'{file.parent}/{file.parent.stem} {seq+1:04d}.dng'
             if os.path.exists(dst):
@@ -102,11 +103,6 @@ def process_location(source, dry_run=False):
             print(f'Rename {file.absolute()} to {dst}')
             if not dry_run:
                 shutil.move(file.absolute(), dst)
-
-    # Delete all temporary folders
-    for tmp_folder in tmp_folder_list:
-        if not dry_run:
-            shutil.rmtree(tmp_folder)
 
 def main():
     '''The main program'''
@@ -119,8 +115,24 @@ def main():
     assert locations, f"locations is missing from {CONFIG_FILENAME}"
     assert isinstance(locations, list)
 
-    for source in locations:
-        process_location(source, dry_run=args.dry_run)
+    conversion_list = []
+    for src in locations:
+        conversion_list = find_convert_info(src, dry_run=args.dry_run)
+
+    # Run the RAW converter
+    loop = asyncio.get_event_loop()
+    for c in conversion_list:
+        if not args.dry_run:
+            loop.run_until_complete(convert_raw_to_dng(c.src, c.dst))
+    loop.close()
+
+    # Delete all temporary folders
+    if not args.dry_run:
+        for c in conversion_list:
+            shutil.rmtree(c.src)
+
+    for src in locations:
+        rename_file(src, dry_run=args.dry_run)
 
 if __name__ == "__main__":
     main()
