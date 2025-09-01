@@ -41,9 +41,9 @@ class RenameInfo:
 def populate_counter(cur_path, files):
     '''Populate the dictionary mapping from date to file count per date'''
     counter = defaultdict( int )
-    # Populate the counter from existing files
+    # Populate the counter from files that were organized
     for file in files:
-        if cur_path != file.parent:
+        if cur_path == file.parent:
             continue
         filename = str(file.stem)
         if (obj := re.match(r'(?P<date>\d{4}-\d{2}-\d{2}) (?P<count>\d{3})',filename)):
