@@ -1,6 +1,11 @@
 #!/usr/bin/env -S uv run --script --project /Users/athichart/Workspace/github/scripts/src
 #!/usr/bin/env python3
 
+# TODO:
+# 1) handle edge cases where dimensions are not perfectly aligned
+# 2) add more background arrangements
+# 3) learn loguru
+
 from pathlib import Path
 import argparse
 import math
