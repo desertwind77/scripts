@@ -2,9 +2,8 @@
 #!/usr/bin/env python3
 
 # TODO:
-# 1) handle edge cases where dimensions are not perfectly aligned
-# 2) add more background arrangements
-# 3) learn loguru
+# 1) add more background arrangements
+# 2) Using face detection during crop to ensure that the faces are in the middle
 
 from pathlib import Path
 import argparse
@@ -19,6 +18,7 @@ from loguru import logger
 EXPERIMENTAL = False
 
 class MosaicGenerator:
+    '''Create a mosaic image'''
     def __init__(self, target_image_file: str, source_image_dir: str, grid: int) -> None:
         self.target_image_file = target_image_file
         self.source_image_dir = source_image_dir
@@ -28,8 +28,18 @@ class MosaicGenerator:
         self.image_width = self.target_image.size[0]
         self.image_height = self.target_image.size[1]
         self.grid_size = min(self.image_width, self.image_height) // grid
-        self.horizontal_grid = math.ceil(self.image_width/self.grid_size)
-        self.vertical_grid = math.ceil(self.image_height/self.grid_size)
+        self.num_column = math.ceil(self.image_width/self.grid_size)
+        self.num_row = math.ceil(self.image_height/self.grid_size)
+
+    def print_summary(self):
+        '''Print detail of the task'''
+        target_img = Path(self.target_image_file)
+        src_folder = Path(self.source_image_dir)
+        logger.info(f'target image: {target_img.absolute()}')
+        logger.info(f'dimensions: {self.image_width, self.image_height}')
+        logger.info(f'source folder: {src_folder.absolute()}')
+        logger.info(f'grid size: {self.grid_size}')
+        logger.info(f'num grids: {self.num_column, self.num_row}')
 
     def load_target_image(self) -> ImageFile.ImageFile:
         '''Load the target image file'''
@@ -97,24 +107,26 @@ class MosaicGenerator:
 
     def create_background_image(self) -> Image.Image:
         '''Create the background image'''
-        logger.debug('Creating the background image')
         # Load source images to be used as the background image
         source_images = self.load_source_image_folder()
         # Shuffle the source images so that each run returns a different output
         random.shuffle(source_images)
+
+        logger.debug('Creating the background image')
+
         # Crop and resize the source images into squares
         cropped_image_list = self.resize_source_images(source_images)
         # Create the background image list
         num_src_img = len(cropped_image_list)
-        num_grids = self.horizontal_grid * self.vertical_grid
+        num_grids = self.num_column * self.num_row
         img_indexes = [i % num_src_img for i in range(num_grids)]
         background_image_list = [cropped_image_list[i] for i in img_indexes]
         # Create an empty image to store the final mosaic image
         mosaic_image = Image.new('RGB', (self.image_width, self.image_height))
         # Copy the background images onto each grid in the mosaic image
         for index, tile in enumerate(background_image_list):
-            row = index // self.horizontal_grid
-            col = index - (row * self.vertical_grid)
+            row = index // self.num_column
+            col = index - (row * self.num_column)
             mosaic_image.paste(tile, (col * self.grid_size,
                                       row * self.grid_size))
         return mosaic_image
@@ -123,6 +135,7 @@ class MosaicGenerator:
                       opacity_percentage: int = 100,
                       brightness_factor: float = 1.0) -> Image.Image:
         '''Create the final mosaic image'''
+        self.print_summary()
         background_image = self.create_background_image()
         if EXPERIMENTAL:
             background_image = self.reduce_image_opacity(background_image,
