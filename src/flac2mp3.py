@@ -9,7 +9,10 @@ import argparse
 import concurrent
 import os
 import re
+import subprocess
+import sys
 
+# pylint: disable=import-error
 from fastprogress import progress_bar
 from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
@@ -207,8 +210,20 @@ def convert_all_files(dst, copy_info, dry_run=False, seq_exec=False, verbose=Fal
                 pass
 
 
+def check_ffmpeg_exists():
+    '''Check if ffmpeg is available; otherwise, terminate the programm'''
+    try:
+        cmd_tokens = ['which', 'ffmpeg']
+        subprocess.check_output(cmd_tokens)
+    except subprocess.CalledProcessError:
+        print('Command not found: ffmpeg.')
+        sys.exit(1)
+
+
 def main() -> None:
     '''The main program'''
+    check_ffmpeg_exists()
+
     args = parse_arguments()
     copy_info = process_all_folders(args.dst, args.folders, args.flatten)
     convert_all_files(args.dst, copy_info, dry_run=args.dry_run,
