@@ -5,11 +5,11 @@
 |dashrm|Remove an unwanted app from MacOS X's launchpad|
 |finreport|Summarize credit card statements|
 |flac2mp3|Convert flac to mp3|
+|framecpy|Copy photo to the photo frame location on NAS|
 |fsmonitor|Monitor file system changes (Linux only)|
 |dashrm|Remove an item for MacOS dashboard (dangerous)|
 |mobilemgr|Organize iPhone photo backup|
 |pdfmrg|Encrypt, decrypt, interleave or merge pdf files|
-|pfrmcpy|Copy photo to the photo frame location on NAS|
 |portmgr|Copy photo to the storage| 
 |quote|Print a quote|
 |raw2dng|Convert RAW files to DNG format|
