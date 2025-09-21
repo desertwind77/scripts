@@ -4,7 +4,11 @@
 #
 # TODO:
 # 1) add more background arrangements
-# 2) Using face detection during crop to ensure that the faces are in the middle
+#    - Fill background with black and randomly rotate the source image tiles a
+#      few degress to the left or to the right
+#    - Use different tile sizes for the background
+# 2) Using face detection during crop to ensure that the faces are in the
+#    middle
 
 from pathlib import Path
 import argparse
