@@ -1,4 +1,1 @@
-#!/bin/sh
-name=mosaic.py
-script_dir=$HOME/Workspace/github/scripts/src
-uv run --project $script_dir $script_dir/mosaic.py $@
+launcher
