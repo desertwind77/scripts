@@ -1,6 +1,1 @@
-#!/usr/bin/env bash
-statements="/Users/athichart/Google Drive/My Drive/Document/Statements"
-
-name=$(basename "$0").py
-script_dir="$(dirname "$(readlink -f "$0")")"
-uv run --project $script_dir $script_dir/$name -l "$statements" "$@"
+launcher

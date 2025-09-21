@@ -498,8 +498,6 @@ def process_command_line_arguments( config : dict ) -> argparse.Namespace:
                          help="Category of interest" )
     parser.add_argument( "-g", "--group", action='store_true',
                          help="Group transactions by account" )
-    parser.add_argument( "-l", "--location", required=True, action='store',
-                         dest='location', help="Locaiton of the statement files" )
     parser.add_argument( "-m", "--month", action='store',
                          help="Month of interest" )
     parser.add_argument( "-y", "--year", action='store',
@@ -525,7 +523,8 @@ def main():
     year = args.year if args.year else datetime.now().year
     plain = args.plain
     verbose = args.verbose
-    location = str( Path( args.location )/str( year ) )
+
+    location = f'{config[ 'Statements' ]}/{year}'
     if not os.path.exists( location ):
         print( f'{location} does not exist' )
         return
