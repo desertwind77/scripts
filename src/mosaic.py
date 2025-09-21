@@ -1,20 +1,26 @@
 #!/usr/bin/env -S uv run --script --project /Users/athichart/Workspace/github/scripts/src
 #!/usr/bin/env python3
-from dataclasses import dataclass
+
 from pathlib import Path
 import argparse
 import math
 import random
+import sys
 
 # pylint: disable=import-error
-from PIL import Image
+from PIL import Image, ImageChops
 import numpy as np
 
-@dataclass(frozen=True)
-class Grid:
-    '''Number of horizontal and vertical grids'''
-    width: int
-    height: int
+class GridInfo:
+    '''Grid information'''
+    def __init__(self, image_width: int, image_height: int,
+                 num_horizontal_grids: int, num_vertical_grids: int) -> None:
+        self.image_width = image_width
+        self.image_height = image_height
+        self.num_horizontal_grids = num_horizontal_grids
+        self.num_vertical_grids = num_vertical_grids
+        self.grid_width = image_width // num_horizontal_grids
+        self.grid_height = image_height // num_vertical_grids
 
 # Flag to enable debugging
 DEBUG_ENABLED = True
@@ -30,26 +36,49 @@ def parse_argument():
     default_grid = (64, 64)
     parser = argparse.ArgumentParser(description='Create a photomasaic')
     parser.add_argument('-g', '--grid', nargs=2, default=default_grid,
-                        help='number of grids (width, height)')
+                        help='number of grids in (width, height). '
+                        'The default value is (64, 64)')
     parser.add_argument('-o', '--output', default='mosaic_output.png',
                         help='output image')
+    parser.add_argument('-s', '--show', action='store_true',
+                        help='show the final image')
     parser.add_argument('target', help='target image')
     parser.add_argument('source', help='source folder for the input images')
     return parser.parse_args()
 
-def load_target_image(target: str) -> Image:
+def load_image(filename: str) -> Image:
     '''Load the target image
 
     Parameters:
-        target (str): the location of the target image
+        filename (str): the location of the target image
 
     Return:
         A Pillow image of the target image
     '''
-    debug(f'Loading target {target}')
-    return Image.open(target)
+    try:
+        debug(f'Loading target {filename}')
+        image = Image.open(filename)
+    except FileNotFoundError:
+        print(f'Unable to get source images from {filename}')
+        sys.exit(1)
+    return image
 
-def load_source_images(target_image: Image, source: str) -> list[Image]:
+def get_grid_info(image: Image, num_horizontal_grids: int,
+                  num_vertical_grids: int) -> GridInfo:
+    '''Find out the information of a grid once we split the target image
+
+    Parameters:
+        image (Image): pillow Image object to be split
+        horizontal_grid (int): number of horizontal grids
+        vertical_grid (int): number of vertical grids
+
+    Return:
+        a Grid object containing the information of a grid
+    '''
+    return GridInfo(image.size[0], image.size[1], num_horizontal_grids,
+                    num_vertical_grids)
+
+def load_source_image_folder(source: str) -> list[Image]:
     '''Get the source images to be used to create a mosaic
 
     Parameters:
@@ -61,204 +90,106 @@ def load_source_images(target_image: Image, source: str) -> list[Image]:
     '''
     debug(f'Loading source {source}')
 
-    def has_same_dimension(img1, img2):
-        if (img1.size[0] == img1.size[1]) and (img2.size[0] == img2.size[1]):
-            return True
-        if (img1.size[0] > img1.size[1]) and (img2.size[0] > img2.size[1]):
-            return True
-        if (img1.size[0] < img1.size[1]) and (img2.size[0] < img2.size[1]):
-            return True
-        return False
-
     result = []
     source_image_path = Path(source)
     for file in source_image_path.glob('**/*.jpg'):
         try:
             with open(file, 'rb') as f:
+                # Open and load the image into memory
                 image = Image.open(f)
                 image.load()
-                if not has_same_dimension(target_image, image):
-                    continue
                 result.append(image)
         except KeyboardInterrupt:
+            # If the number of images in the folder is huge, this function may
+            # take too long. Let's exit the program gracefully.
             print('Keyboard interrupt')
-            return []
-        except:
-            print(f'Unable to open file {file}')
-
-    # Shuffle the images so that each run returns a different output
-    random.shuffle(result)
-
+            sys.exit(1)
     return result
 
-def resize_source_images(target_image, grid, source_images) -> None:
-    '''Resize the source images
-
-    Parameters:
-        target_image:
-        grid: tu
-        source_images: list of pillow Images
-    '''
-    debug('Resize the source images')
-    width = int(target_image.size[0] / grid.width)
-    height = int(target_image.size[1] / grid.height)
-    for image in source_images:
-        image.thumbnail((width, height))
-
-def split_target_image(target_image: Image, grid: Grid) -> list[Image]:
-    '''Split the target image into grids
-
-    Parameters:
-        taget_image (Image): the image to be Split
-        gird (Grid): the number of horizontal and vertical grids
-
-    Returns:
-        A list containing grids of the target image
-    '''
-    debug('Split the target image')
-    width = int( target_image.size[0] / grid.width )
-    height = int( target_image.size[1] / grid.height )
-
-    result = []
-    for j in range(grid.height):
-        for i in range(grid.width):
-            result.append(target_image.crop((i*width, j*height,
-                                            (i+1)*width, (j+1)*height)))
-    return result
-
-def get_average_rgb(image):
-    '''Get the average color of an image
-
-    Parameters:
-        image (Image): the image to be processed
-
-    Return:
-        A vector of RGB which is the average color of the image
-    '''
-    img = np.array(image)
-    w, h, d = img.shape
-    return tuple(np.average(img.reshape(w*h, d), axis=0))
-
-def find_average_rgb(images: list[Image]) -> list[tuple]:
-    '''Find average color vectors of all images in the list
-
-    Parameters:
-        images (list[Image]): list of images
-
-    Return:
-        A list of tuples, each of which represents an average RGB color of an
-        image.
-    '''
-    return [ get_average_rgb( i ) for i in images ]
-
-def find_closet_match_index(source_average_rgb: list[tuple],
-                            target_average_rgb: list[tuple]) -> list[int]:
-    '''Find the closet match between images in the source images and each tile in the target image
-
-    Parameters:
-        source_average_rgb (list[tpule]): a list of tuples, each of which
-            represents an average RGB color of a source image.
-        target_average_rgb (list[tpule]): a list of tuples, each of which
-            represents an average RGB color of a grid of the target image.
-
-    Return:
-        A list of integer which is the index in the source images that matches the same grid index
-        in the target image.
-    '''
-    print('Find the closet match indices', end='')
-
-    result = []
-    size = len(target_average_rgb)
-    batch_size = int(size/10)
-
-    for index, target in enumerate(target_average_rgb):
-        if index % batch_size == 0:
-            print('.', end='')
-
-        min_index, min_distance = 0, float('inf')
-        for index, src in enumerate(source_average_rgb):
-            distance = math.pow(src[0] - target[0], 2) + \
-                       math.pow(src[1] - target[1], 2) + \
-                       math.pow(src[2] - target[2], 2)
-            if min_distance > distance:
-                min_distance = distance
-                min_index = index
-        result.append(min_index)
-
-    print()
-
-    return result
-
-def create_image_from_tiles(tiles: list[Image], grid: Grid) -> Image:
+def create_background_image(source_image_list: list[Image],
+                            grid_info: GridInfo) -> Image:
     '''Combine grid of images to an image
 
     Parameters:
-        tiles (list[Image]): grid of images
-        grid (Grid): number of horizontal and vertical grids
+        source_image_list(list[Image]): source images in PILLOW objects
+        grid_info (GridInfo): information of the grids
 
     Return:
-        An image constructed from the grid
+        A mosaic image constructed from the source images
     '''
-    assert grid.width * grid.height == len(tiles)
+    # Shuffle the source images so that each run returns a different output
+    random.shuffle(source_image_list)
 
-    # To be on the safe side, find the max width and height of images
-    width = max(i.size[0] for i in tiles)
-    height = max(i.size[1] for i in tiles)
+    # Resize the source images
+    debug('Resize the source images')
+    for image in source_image_list:
+        # TODO: handle different image size better
+        image.thumbnail((grid_info.grid_width, grid_info.grid_height))
 
-    mosaic_image = Image.new('RGB', (grid.width*width, grid.height*height))
+    num_source_images = len(source_image_list)
+    total_grids = grid_info.num_horizontal_grids * grid_info.num_vertical_grids
+    source_image_indexes = []
 
-    for index, tile in enumerate(tiles):
-        row = int(index/grid.width)
-        col = index - grid.height*row
-        mosaic_image.paste(tile, (col*width, row*height))
+    cur_index = 0
+    for _ in range(total_grids):
+        source_image_indexes.append(cur_index)
+        cur_index = (cur_index + 1) % num_source_images
+
+    source_image_tiles = [source_image_list[i] for i in source_image_indexes]
+
+    mosaic_image = Image.new('RGB', (grid_info.image_width, grid_info.image_height))
+
+    for index, tile in enumerate(source_image_tiles):
+        row = index // grid_info.num_horizontal_grids
+        col = index - (row * grid_info.num_vertical_grids)
+        mosaic_image.paste(tile, (col*grid_info.grid_width,
+                                  row*grid_info.grid_height))
 
     return mosaic_image
+
+def create_and_save_mosaic_image(target_image: Image, background_image: Image,
+                                 output_filename: str) -> Image:
+    '''Create and save the final mosaic image
+
+    Argument:
+        target_image (Image): the target image
+        background_image (Image): the mosaic image created from source images
+        output_filename (str): the name of the output file
+    '''
+    # Create a mosaic image by blending the image in the soft light mode
+    output_image = ImageChops.soft_light(target_image, background_image)
+    output_image.save(output_filename, 'PNG')
+    return output_image
 
 def main():
     '''The main program'''
     args = parse_argument()
     # Reference image
-    target = args.target
+    target_image_name = args.target
     # Source images for the mosaic
-    source = args.source
+    source_image_dir = args.source
     # The output image
-    output_file = args.output
-    # This stores the number of horizon and vertical grids.
-    grid = Grid(int(args.grid[0]), int(args.grid[1]))
+    output_filename = args.output
 
     # Load the target image to a pillow image
-    target_image = load_target_image(target)
-    if not target_image:
-        print(f'Unable to get the target image {target}')
-        return
+    target_image = load_image(target_image_name)
+
+    # Find out the information of a grid once we split the target image
+    grid_info = get_grid_info(image=target_image,
+                              num_horizontal_grids=int(args.grid[0]),
+                              num_vertical_grids=int(args.grid[1]))
 
     # Load all the source images into pillow objects
-    source_images = load_source_images(target_image, source)
-    if not source_images:
-        print(f'Unable to get source images from {source}')
-        return
+    source_image_list = load_source_image_folder(source_image_dir)
 
-    # Resize each source images
-    resize_source_images(target_image, grid, source_images)
-    # Represent a source image with a vector whic is represented by the average
-    # color of the image.
-    source_average_rgb = find_average_rgb(source_images)
+    # Construct a mosaic background image
+    background_image = create_background_image(source_image_list, grid_info)
 
-    # Split the target image into grids
-    target_image_tiles = split_target_image(target_image, grid)
-    # Represent a target image with a vector whic is represented by the average
-    # color of the image.
-    target_average_rgb = find_average_rgb(target_image_tiles)
-
-    # Find the closet source image that matches for each tile in the target image
-    match_index = find_closet_match_index(source_average_rgb,
-                                          target_average_rgb)
-    match_tiles = [source_images[i] for i in match_index]
-
-    # Replace each tile in the target image with the closet match
-    output_image = create_image_from_tiles(match_tiles, grid)
-    # Write the output file
-    output_image.save(output_file, 'PNG')
+    # Create and save the final output image
+    final_image = create_and_save_mosaic_image(target_image, background_image,
+                                               output_filename)
+    if args.show:
+        final_image.show()
 
 if __name__ == '__main__':
     main()
