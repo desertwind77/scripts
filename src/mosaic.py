@@ -7,8 +7,6 @@
 #    - Fill background with black and randomly rotate the source image tiles a
 #      few degress to the left or to the right
 #    - Use different tile sizes for the background
-# 2) Using face detection during crop to ensure that the faces are in the
-#    middle
 
 from pathlib import Path
 import argparse
@@ -81,8 +79,18 @@ class MosaicGenerator:
         logger.debug('Resizing the source images')
         cropped_image_list = []
         for image in images:
-            image_size = min(image.size[0], image.size[1])
-            crop_box = (0, 0, image_size, image_size)
+            square_size = min(image.size[0], image.size[1])
+
+            # Crop in the middle of the image
+            if image.size[0] > image.size[1]:
+                # Landscape orientation
+                offset = (image.size[0] - square_size) // 2
+                crop_box = (offset, 0, square_size + offset, square_size)
+            else:
+                # Portrait orientation
+                offset = (image.size[1] - square_size) // 2
+                crop_box = (0, offset, square_size, square_size + offset)
+
             new_size = (self.grid_size, self.grid_size)
             tmp_image = image.crop(crop_box)
             tmp_image = tmp_image.resize(new_size)
@@ -173,7 +181,7 @@ def parse_argument():
     parser = argparse.ArgumentParser(description='Create a photomasaic')
     parser.add_argument('-B', '--brightness', action='store', default=1,
                         type=lambda x: validate_range(x, 0.1, 2),
-                        help='Opacity of the background image')
+                        help='Opacity of the background image (experiment)')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Print debug messages')
     parser.add_argument('-g', '--grid', default=64,
@@ -183,7 +191,7 @@ def parse_argument():
                         'the target image (default=64).')
     parser.add_argument('-O', '--opacity', action='store', default=100,
                         type=lambda x: validate_range(x, 0, 100),
-                        help='Opacity of the background image')
+                        help='Opacity of the background image (experiment)')
     parser.add_argument('-o', '--output', default='mosaic_output.png',
                         help='output image')
     parser.add_argument('-s', '--show', action='store_true',
