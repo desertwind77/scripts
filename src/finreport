@@ -1,22 +1,6 @@
 #!/usr/bin/env bash
-
-name=finreport
-packages="PyPDF2 rich tabulate"
 statements="/Users/athichart/Google Drive/My Drive/Document/Statements"
 
-workspace=$HOME/Workspace
-venv_dir=$workspace/python_venv/$name
+name=$(basename "$0").py
 script_dir="$(dirname "$(readlink -f "$0")")"
-
-if [ ! -d "$venv_dir" ]
-then
-   echo "Preparing $venv_dir"
-   python3 -m venv $venv_dir
-   source $venv_dir/bin/activate
-   python3 -m pip install $packages
-   deactivate
-fi
-
-source $venv_dir/bin/activate
-$script_dir/$name.py -l "$statements" "$@"
-deactivate
+uv run --project $script_dir $script_dir/$name -l "$statements" "$@"
