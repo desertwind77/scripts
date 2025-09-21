@@ -1,3 +1,4 @@
 #!/bin/sh
-SCRIPT_DIR=/Users/athichart/Workspace/github/scripts/src
-uv run --project $SCRIPT_DIR $SCRIPT_DIR/mosaic.py $@
+name=mosaic.py
+script_dir=$HOME/Workspace/github/scripts/src
+uv run --project $script_dir $script_dir/mosaic.py $@
