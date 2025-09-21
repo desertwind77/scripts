@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script --project /Users/athichart/Workspace/github/scripts/src
 #!/usr/bin/env python3
-
+# A script to generate a mosaic photo
+#
 # TODO:
 # 1) add more background arrangements
 # 2) Using face detection during crop to ensure that the faces are in the middle
