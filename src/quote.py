@@ -3,11 +3,15 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import argparse
+import os
 import random
 import re
 import textwrap
 
 from colorama import Fore, Style
+
+
+QUOTE_FILE = 'config/Quotes.md'
 
 
 @dataclass(frozen=True)
@@ -155,14 +159,17 @@ def parse_arguments() -> argparse.Namespace:
                         help="Print only quotes with this tag")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Print debug information")
-    parser.add_argument("data", action="store", help="Quote database")
     return parser.parse_args()
 
 
 def main() -> None:
     '''The main function'''
     args = parse_arguments()
-    quote_db = QuoteDB(args.data)
+
+    script_path = os.path.realpath(os.path.dirname( __file__ ))
+    abs_filename = os.path.join(script_path, QUOTE_FILE)
+
+    quote_db = QuoteDB(abs_filename)
     quote_db.print_quotes(all_quotes=args.all, tag=args.tag, verbose=args.verbose)
 
 
