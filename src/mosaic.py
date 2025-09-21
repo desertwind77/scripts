@@ -1,6 +1,8 @@
-#!/usr/bin/env -S uv run --script --project /Users/athichart/Workspace/github/scripts/src
 #!/usr/bin/env python3
-# A script to generate a mosaic photo
+'''A script to generate a mosaic photo'''
+#
+# For the sake of convenience, We can use the following command to invoke uv run.
+#!/usr/bin/env -S uv run --script --project /Users/athichart/Workspace/github/scripts/src
 #
 # TODO:
 # 1) add more background arrangements
@@ -11,8 +13,10 @@
 from pathlib import Path
 import argparse
 import math
+import os
 import random
 import sys
+import time
 
 # pylint: disable=import-error
 from PIL import Image, ImageChops, ImageEnhance, ImageFile
@@ -27,7 +31,7 @@ class MosaicGenerator:
         self.source_image_dir = source_image_dir
         self.grid = grid
 
-        self.target_image = self.load_target_image()
+        self.target_image = self.load_image(self.target_image_file)
         self.image_width = self.target_image.size[0]
         self.image_height = self.target_image.size[1]
         self.grid_size = min(self.image_width, self.image_height) // grid
@@ -44,41 +48,32 @@ class MosaicGenerator:
         logger.info(f'grid size: {self.grid_size}')
         logger.info(f'num grids: {self.num_column, self.num_row}')
 
-    def load_target_image(self) -> ImageFile.ImageFile:
-        '''Load the target image file'''
-        logger.debug(f'Loading target image {self.target_image_file}')
+    def load_image(self, filename: str) -> ImageFile.ImageFile:
+        '''Load an image file'''
+        logger.debug(f'Loading {filename}')
         try:
-            image = Image.open(self.target_image_file)
+            image = Image.open(filename)
         except FileNotFoundError:
-            print(f'Unable to open {self.target_image_file}')
+            logger.error(f'Unable to open {filename}')
             sys.exit(1)
         return image
 
-    def load_source_image_folder(self) -> list[ImageFile.ImageFile]:
+    def load_source_image_folder(self) -> list[Path]:
         '''Load source images to be used as the background image'''
         logger.debug(f'Loading source images from {self.source_image_dir}')
-
-        result = []
         source_image_path = Path(self.source_image_dir)
-        for file in source_image_path.glob('**/*.jpg'):
-            try:
-                with open(file, 'rb') as f:
-                    # Open and load the image into memory
-                    image = Image.open(f)
-                    image.load()
-                    result.append(image)
-            except KeyboardInterrupt:
-                # If the number of images in the folder is huge, this function may
-                # take too long. Let's exit the program gracefully.
-                print('Keyboard interrupt')
-                sys.exit(1)
-        return result
+        return list(source_image_path.glob('**/*.jpg'))
 
-    def resize_source_images(self, images) -> list[ImageFile.ImageFile]:
+    def resize_source_images(self) -> list[ImageFile.ImageFile]:
         '''Crop and resize the images in the list to a square'''
         logger.debug('Resizing the source images')
+
+        source_image_path = Path(self.source_image_dir)
+
         cropped_image_list = []
-        for image in images:
+        for filename in source_image_path.glob('**/*.jpg'):
+            image = self.load_image(str(filename))
+            image.load()
             square_size = min(image.size[0], image.size[1])
 
             # Crop in the middle of the image
@@ -120,15 +115,11 @@ class MosaicGenerator:
 
     def create_background_image(self) -> Image.Image:
         '''Create the background image'''
-        # Load source images to be used as the background image
-        source_images = self.load_source_image_folder()
-        # Shuffle the source images so that each run returns a different output
-        random.shuffle(source_images)
-
         logger.debug('Creating the background image')
-
         # Crop and resize the source images into squares
-        cropped_image_list = self.resize_source_images(source_images)
+        cropped_image_list = self.resize_source_images()
+        # Shuffle the source images so that each run returns a different output
+        random.shuffle(cropped_image_list)
         # Create the background image list
         num_src_img = len(cropped_image_list)
         num_grids = self.num_column * self.num_row
@@ -158,7 +149,6 @@ class MosaicGenerator:
 
         logger.debug(f'Creating {output_filename}')
         output_image = ImageChops.soft_light(self.target_image, background_image)
-        output_image.save(output_filename, 'PNG')
         return output_image
 
 def validate_range(value_str: str, min_val: float | None = None,
@@ -203,20 +193,45 @@ def parse_argument():
 def main():
     '''The main program'''
     args = parse_argument()
+    brightness = int(args.brightness)
     grid = int(args.grid)
     opacity = int(args.opacity)
-    brightness = int(args.brightness)
-    target_image_name = args.target
-    source_image_dir = args.source
     output_filename = args.output
+    source_image_dir = args.source
+    target_image_name = args.target
+
+    # Determine the output format from the output file extension
+    _, file_extension = os.path.splitext(output_filename)
+    print(file_extension)
+    output_format = None
+    if file_extension == '.png':
+        output_format = 'PNG'
+    elif file_extension in [ '.jpg', '.jpeg' ]:
+        output_format = 'JPEG'
+    else:
+        logger.error(f'Unsupported output format {file_extension}')
+        sys.exit(1)
 
     if not args.debug:
         logger.disable('')
 
     mosaic = MosaicGenerator(target_image_name, source_image_dir, grid)
-    final_image = mosaic.create_mosaic(output_filename, opacity, brightness)
+    try:
+        # Generate and save a mosaic image
+        start_time = time.perf_counter()
+        final_image = mosaic.create_mosaic(output_filename, opacity, brightness)
+        end_time = time.perf_counter()
+        final_image.save(output_filename, format=output_format)
+    except KeyboardInterrupt:
+        # Exit gracefully once Ctrl-c is pressed.
+        logger.error('Aborted')
+        sys.exit(1)
+
+    elapsed_time = end_time - start_time
+    logger.info(f'Elapsed time: {elapsed_time:.2f} seconds')
 
     if args.show:
+        # Show the image on the screen
         final_image.show()
 
 if __name__ == '__main__':
