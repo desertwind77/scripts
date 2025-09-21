@@ -11,11 +11,15 @@ TODO:
 '''
 from dataclasses import dataclass
 import argparse
+import os
 import random
 import re
 import sys
 from colorama import Fore, Style
 import yaml
+
+
+VOCAB_FILE = 'config/vocabulary.yaml'
 
 
 class RegexMatchFailure(Exception):
@@ -284,8 +288,6 @@ def process_arguments() -> argparse.Namespace:
         (argparse.Namespace) parsed command line arguments
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('dictionary', action='store',
-                        help='The dictionary file in the YAML format')
     parser.add_argument('-a', '--all', action='store_true',
                         help='Print all words in the dictionary')
     parser.add_argument('-g', '--game', action='store_true',
@@ -345,7 +347,10 @@ def play_word_game(dictionary) -> None:
 def main():
     '''The main function'''
     args = process_arguments()
-    dictionary = Dictionary(args.dictionary)
+
+    script_path = os.path.realpath( os.path.dirname( __file__ ) )
+    vocab_filename = os.path.join( script_path, VOCAB_FILE )
+    dictionary = Dictionary(vocab_filename)
 
     if args.verify:
         dictionary.verify()
