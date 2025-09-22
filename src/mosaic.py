@@ -19,22 +19,24 @@ import sys
 import time
 
 # pylint: disable=import-error
-from PIL import Image, ImageChops, ImageEnhance, ImageFile
+from PIL import Image, ImageChops, ImageEnhance
 from loguru import logger
-
-EXPERIMENTAL = False
 
 class MosaicGenerator:
     '''Create a mosaic image'''
-    def __init__(self, target_image_file: str, source_image_dir: str, grid: int) -> None:
+    IMAGE_PATTERNS = ('**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.webp')
+
+    def __init__(self, target_image_file: str, source_image_dir: str,
+                 tiles_on_short_side: int) -> None:
         self.target_image_file = target_image_file
         self.source_image_dir = source_image_dir
-        self.grid = grid
+        self.tiles_on_short_side = tiles_on_short_side
 
         self.target_image = self.load_image(self.target_image_file)
         self.image_width = self.target_image.size[0]
         self.image_height = self.target_image.size[1]
-        self.grid_size = min(self.image_width, self.image_height) // grid
+        self.grid_size = \
+                min(self.image_width, self.image_height) // tiles_on_short_side
         self.num_column = math.ceil(self.image_width/self.grid_size)
         self.num_row = math.ceil(self.image_height/self.grid_size)
 
@@ -46,32 +48,28 @@ class MosaicGenerator:
         logger.info(f'dimensions: {self.image_width, self.image_height}')
         logger.info(f'source folder: {src_folder.absolute()}')
         logger.info(f'grid size: {self.grid_size}')
-        logger.info(f'num grids: {self.num_column, self.num_row}')
+        logger.info(f'num tiles: {self.num_column, self.num_row}')
 
-    def load_image(self, filename: str) -> ImageFile.ImageFile:
+    def load_image(self, filename: str) -> Image.Image:
         '''Load an image file'''
         logger.debug(f'Loading {filename}')
         try:
             image = Image.open(filename)
-        except FileNotFoundError:
-            logger.error(f'Unable to open {filename}')
-            sys.exit(1)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f'Unable to open {filename}') from e
         return image
 
-    def load_source_image_folder(self) -> list[Path]:
-        '''Load source images to be used as the background image'''
-        logger.debug(f'Loading source images from {self.source_image_dir}')
-        source_image_path = Path(self.source_image_dir)
-        return list(source_image_path.glob('**/*.jpg'))
+    def _iter_source_paths(self):
+        p = Path(self.source_image_dir)
+        for pattern in self.IMAGE_PATTERNS:
+            yield from p.glob(pattern)
 
-    def resize_source_images(self) -> list[ImageFile.ImageFile]:
+    def resize_source_images(self) -> list[Image.Image]:
         '''Crop and resize the images in the list to a square'''
         logger.debug('Resizing the source images')
 
-        source_image_path = Path(self.source_image_dir)
-
-        cropped_image_list = []
-        for filename in source_image_path.glob('**/*.jpg'):
+        tiles = []
+        for filename in self._iter_source_paths():
             image = self.load_image(str(filename))
             image.load()
             square_size = min(image.size[0], image.size[1])
@@ -88,9 +86,11 @@ class MosaicGenerator:
 
             new_size = (self.grid_size, self.grid_size)
             tmp_image = image.crop(crop_box)
-            tmp_image = tmp_image.resize(new_size)
-            cropped_image_list.append(tmp_image)
-        return cropped_image_list
+            # Use LANCZOS Resampling for better quality
+            tmp_image = tmp_image.resize(new_size, Image.Resampling.LANCZOS)
+            tmp_image = tmp_image.convert('RGB')
+            tiles.append(tmp_image)
+        return tiles
 
     def reduce_image_opacity(self, image: Image.Image,
                              opacity_percentage: int) -> Image.Image:
@@ -106,8 +106,8 @@ class MosaicGenerator:
 
     def adjust_image_brightness(self, image: Image.Image,
                                 brightness_factor: float) -> Image.Image:
-        '''Adjust the brightness of an image. At brightness factor 1.5, the
-        image will be 50% brighter.'''
+        '''Adjust the brightness of an image. At the brightness factor of 1.5,
+        the image is 50% brighter.'''
         logger.debug(f'Adjust the brightness level to {brightness_factor}')
         enhancer = ImageEnhance.Brightness(image)
         enhanced_image = enhancer.enhance(brightness_factor)
@@ -116,39 +116,60 @@ class MosaicGenerator:
     def create_background_image(self) -> Image.Image:
         '''Create the background image'''
         logger.debug('Creating the background image')
-        # Crop and resize the source images into squares
-        cropped_image_list = self.resize_source_images()
-        # Shuffle the source images so that each run returns a different output
-        random.shuffle(cropped_image_list)
-        # Create the background image list
-        num_src_img = len(cropped_image_list)
+
         num_grids = self.num_column * self.num_row
-        img_indexes = [i % num_src_img for i in range(num_grids)]
-        background_image_list = [cropped_image_list[i] for i in img_indexes]
+
+        # Crop and resize the source images into squares
+        all_tiles = self.resize_source_images()
+        if len(all_tiles) >= num_grids:
+            background_image_list = random.sample(all_tiles, k=num_grids)
+        else:
+            background_image_list = \
+                    [all_tiles[i % len(all_tiles)] for i in range(num_grids)]
+        # Shuffle the source images so that each run returns a different output
+        random.shuffle(background_image_list)
+
         # Create an empty image to store the final mosaic image
         mosaic_image = Image.new('RGB', (self.image_width, self.image_height))
-        # Copy the background images onto each grid in the mosaic image
+
+        # Copy the background images onto each tile in the mosaic image
         for index, tile in enumerate(background_image_list):
             row = index // self.num_column
             col = index - (row * self.num_column)
-            mosaic_image.paste(tile, (col * self.grid_size,
-                                      row * self.grid_size))
+            # Make sure that we don't overflow the canvas.
+            # This code snipplet was recommended by ChatGPT.
+            x0 = col * self.grid_size
+            y0 = row * self.grid_size
+            x1 = min(x0 + self.grid_size, self.image_width)
+            y1 = min(y0 + self.grid_size, self.image_height)
+            if tile.size != (x1 - x0, y1 - y0):
+                tile = tile.crop((0, 0, x1 - x0, y1 - y0))
+            mosaic_image.paste(tile.convert('RGB'), (x0, y0))
+
         return mosaic_image
 
-    def create_mosaic(self, output_filename: str,
+    def create_mosaic(self, mode: str = 'soft_light',
+                      alpha: float = 0.35,
                       opacity_percentage: int = 100,
                       brightness_factor: float = 1.0) -> Image.Image:
         '''Create the final mosaic image'''
         self.print_summary()
         background_image = self.create_background_image()
-        if EXPERIMENTAL:
-            background_image = self.reduce_image_opacity(background_image,
-                                                         opacity_percentage)
-            background_image = self.adjust_image_brightness(background_image,
-                                                            brightness_factor)
 
-        logger.debug(f'Creating {output_filename}')
-        output_image = ImageChops.soft_light(self.target_image, background_image)
+        logger.debug('Creating the photo mosaic')
+        if mode == 'blend':
+            output_image = Image.blend(self.target_image.convert('RGB'),
+                                       background_image, alpha=alpha)
+        else:
+            if opacity_percentage != 100 or not math.isclose(brightness_factor, 1.0):
+                background_image = \
+                        self.reduce_image_opacity(background_image,
+                                                  int(opacity_percentage))
+                background_image = \
+                        self.adjust_image_brightness(background_image,
+                                                     float(brightness_factor))
+            output_image = ImageChops.soft_light(self.target_image.convert('RGB'),
+                                                 background_image)
         return output_image
 
 def validate_range(value_str: str, min_val: float | None = None,
@@ -157,7 +178,7 @@ def validate_range(value_str: str, min_val: float | None = None,
     try:
         value = float(value_str)
     except ValueError as exc:
-        msg = f"'{value_str}' is not a valid integer."
+        msg = f"'{value_str}' is not a valid number."
         raise argparse.ArgumentTypeError(msg) from exc
     min_value = -math.inf if min_val is None else min_val
     max_value = math.inf if max_val is None else max_val
@@ -169,23 +190,32 @@ def validate_range(value_str: str, min_val: float | None = None,
 def parse_argument():
     '''Parse the command line arguments'''
     parser = argparse.ArgumentParser(description='Create a photomasaic')
+    parser.add_argument('--alpha', type=float, default=0.35,
+                        help='The alpha parameter (for blend mode only).')
     parser.add_argument('-B', '--brightness', action='store', default=1,
                         type=lambda x: validate_range(x, 0.1, 2),
-                        help='Opacity of the background image (experiment)')
+                        help='Brightness factor of the background '
+                        '(experiment, 0.1-2, default=1.0)')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Print debug messages')
-    parser.add_argument('-g', '--grid', default=64,
-                        # Set the minimum number of grids to 16
-                        type=lambda x: validate_range(x, 16 ),
-                        help='number of grids on the shorter side of '
-                        'the target image (default=64).')
+    parser.add_argument('-m','--mode', choices=['soft_light','blend'],
+                        default='soft_light',
+                        help='Choose the blending mode for the target image '
+                        'and the background image')
     parser.add_argument('-O', '--opacity', action='store', default=100,
                         type=lambda x: validate_range(x, 0, 100),
                         help='Opacity of the background image (experiment)')
     parser.add_argument('-o', '--output', default='mosaic_output.png',
                         help='output image')
+    parser.add_argument('--seed', type=int,
+                        help='Random seed for reproducible layout')
     parser.add_argument('-s', '--show', action='store_true',
                         help='show the final image')
+    parser.add_argument('-t', '--tiles', default=64,
+                        # Set the minimum number of tiles to 16
+                        type=lambda x: validate_range(x, 16 ),
+                        help='number of tiles on the shorter side of '
+                        'the target image (default=64).')
     parser.add_argument('target', help='target image')
     parser.add_argument('source', help='source folder for the input images')
     return parser.parse_args()
@@ -193,46 +223,62 @@ def parse_argument():
 def main():
     '''The main program'''
     args = parse_argument()
-    brightness = int(args.brightness)
-    grid = int(args.grid)
-    opacity = int(args.opacity)
-    output_filename = args.output
-    source_image_dir = args.source
-    target_image_name = args.target
 
-    # Determine the output format from the output file extension
-    _, file_extension = os.path.splitext(output_filename)
-    print(file_extension)
-    output_format = None
-    if file_extension == '.png':
-        output_format = 'PNG'
-    elif file_extension in [ '.jpg', '.jpeg' ]:
-        output_format = 'JPEG'
-    else:
-        logger.error(f'Unsupported output format {file_extension}')
-        sys.exit(1)
-
-    if not args.debug:
-        logger.disable('')
-
-    mosaic = MosaicGenerator(target_image_name, source_image_dir, grid)
     try:
+        alpha = float(args.alpha)
+        brightness = float(args.brightness)
+        mode = args.mode
+        opacity = int(args.opacity)
+        output_filename = args.output
+        source_image_dir = args.source
+        target_image_name = args.target
+        tiles_on_short_side = int(args.tiles)
+
+        # Determine the output format from the output file extension
+        _, file_extension = os.path.splitext(output_filename)
+        ext = file_extension.lower()
+        output_format = {'.png': 'PNG', '.jpg': 'JPEG', '.jpeg': 'JPEG'}.get(ext)
+        if not output_format:
+            raise ValueError(f'Unsupported output format {file_extension}')
+
+        if args.seed is not None:
+            random.seed(args.seed)
+
+        if not args.debug:
+            logger.remove()
+            logger.add(sys.stderr, level='INFO')
+        else:
+            logger.remove()
+            logger.add(sys.stderr, level='DEBUG')
+
+        mosaic = MosaicGenerator(target_image_name, source_image_dir,
+                                 tiles_on_short_side)
+
         # Generate and save a mosaic image
         start_time = time.perf_counter()
-        final_image = mosaic.create_mosaic(output_filename, opacity, brightness)
+        final_image = mosaic.create_mosaic(mode, alpha, opacity, brightness)
         end_time = time.perf_counter()
         final_image.save(output_filename, format=output_format)
+        elapsed_time = end_time - start_time
+
+        logger.info(f'Elapsed time: {elapsed_time:.2f} seconds')
+
+        if args.show:
+            # Show the image on the screen
+            final_image.show()
+    except FileNotFoundError as e:
+        logger.error(f'File not fould: {e}')
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f'Invalid value: {e}')
+        sys.exit(2)
     except KeyboardInterrupt:
         # Exit gracefully once Ctrl-c is pressed.
-        logger.error('Aborted')
-        sys.exit(1)
-
-    elapsed_time = end_time - start_time
-    logger.info(f'Elapsed time: {elapsed_time:.2f} seconds')
-
-    if args.show:
-        # Show the image on the screen
-        final_image.show()
+        logger.error('Aborted by user (Ctrl-C)')
+        sys.exit(130)   # conventional exit code for SIGINT
+    except Exception:
+        logger.exception('Unexpected error')
+        sys.exit(99)
 
 if __name__ == '__main__':
     main()
