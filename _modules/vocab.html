@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vocab &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vocab</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vocab</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">A script to randomly print a word from the custom dictionary</span>
+
+<span class="sd">TODO:</span>
+<span class="sd">- Clean up the dictionary file</span>
+<span class="sd">- Print the game statistics</span>
+<span class="sd">- Python GUI</span>
+<span class="sd">- Mobile App</span>
+<span class="sd">- Native Mac App</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colorama</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+
+<span class="n">VOCAB_FILE</span> <span class="o">=</span> <span class="s1">&#39;config/vocabulary.yaml&#39;</span>
+
+
+<div class="viewcode-block" id="RegexMatchFailure">
+<a class="viewcode-back" href="../vocab.html#vocab.RegexMatchFailure">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegexMatchFailure</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Unable to match the word in an example using the regular expression&#39;&#39;&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="NoExampleFound">
+<a class="viewcode-back" href="../vocab.html#vocab.NoExampleFound">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoExampleFound</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;No example presents for this word&#39;s meaning&#39;&#39;&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="ReplacePattern">
+<a class="viewcode-back" href="../vocab.html#vocab.ReplacePattern">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReplacePattern</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;A class for string replacement&#39;&#39;&#39;</span>
+    <span class="n">src</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="Result">
+<a class="viewcode-back" href="../vocab.html#vocab.Result">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Result</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;A class for reporting the result of a word game&#39;&#39;&#39;</span>
+    <span class="n">word</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">meaning</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+
+<div class="viewcode-block" id="Word">
+<a class="viewcode-back" href="../vocab.html#vocab.Word">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Word</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;General base class&#39;&#39;&#39;</span>
+    <span class="n">tab</span> <span class="o">=</span> <span class="s1">&#39;   &#39;</span>
+
+<div class="viewcode-block" id="Word.sanitize_text">
+<a class="viewcode-back" href="../vocab.html#vocab.Word.sanitize_text">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sanitize_text</span><span class="p">(</span><span class="n">txt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Clean up text e.g. removing escape characters</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            txt (str): the text to be cleaned up</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (str) the cleaned up text</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">replacement</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\(&#39;</span><span class="p">,</span> <span class="s1">&#39;(&#39;</span><span class="p">),</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\)&#39;</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">),</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">),</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">),</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="n">ReplacePattern</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">replacement</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">pattern</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Game">
+<a class="viewcode-back" href="../vocab.html#vocab.Game">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Game</span><span class="p">(</span><span class="n">Word</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;A word-filing game&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">meaning</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">example</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Constructor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            word (str): the word and correct answer</span>
+
+<span class="sd">            meaning (str): the meaning of the word</span>
+
+<span class="sd">            example (str): the example sentence to be used as the question</span>
+
+<span class="sd">            choices (list[str]): a list of words to be used in the</span>
+<span class="sd">                                 multiple choices</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Replace the word between { and } with underscores.</span>
+        <span class="n">example</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\{&#39;</span><span class="p">,</span> <span class="s1">&#39;{&#39;</span><span class="p">)</span>
+        <span class="n">example</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\}&#39;</span><span class="p">,</span> <span class="s1">&#39;}&#39;</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*({.*}).*&#39;</span><span class="p">,</span> <span class="n">example</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RegexMatchFailure</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">example</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">word</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meaning</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">meaning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span>
+
+        <span class="n">letters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiple_choices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">answer</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiple_choices</span>
+                           <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">word</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Game.print">
+<a class="viewcode-back" href="../vocab.html#vocab.Game.print">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Print the question, meaning and multiple choices&#39;&#39;&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Question : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Meaning  : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">meaning</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiple_choices</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}{</span><span class="n">choice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="n">choice</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Game.check_answer">
+<a class="viewcode-back" href="../vocab.html#vocab.Game.check_answer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Check if the answer is correct</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            answer (str): the answer</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (bool) True if the answer is correct</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">answer</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Dictionary">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dictionary</span><span class="p">(</span><span class="n">Word</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The class representing the dictionary&#39;&#39;&#39;</span>
+    <span class="n">color_word</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span>
+    <span class="n">color_meaning</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span>
+    <span class="n">color_example</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">CYAN</span>
+    <span class="n">color_highlight</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span>
+    <span class="n">num_multiple_choices</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Constructor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): the dictionary file in the YAML format</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Dictionary.size">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Get the number of words in the dictionary</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (int) the number of words in the dictionary</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dictionary.load_from_file">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.load_from_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Load the vocabuary from a YAML file and return the dictionary in the</span>
+<span class="sd">        format of vocab -&gt; { meaning -&gt; list of examples }</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str) : the YAML file containing the vocabuary</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dictionary containing the vocabuary in the following format</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yaml_file</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="Dictionary.select_words">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.select_words">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_words</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Randomly select a  word or all words from the dictionary for</span>
+<span class="sd">        printing depending on the all_words flag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dictionary (dict): the dictionary containing vocabularies,</span>
+<span class="sd">                               meanings, and examples</span>
+
+<span class="sd">            all_words (bool): select all the words in the dictionary</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of selected words</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">all_words</span><span class="p">:</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">()))]</span>
+        <span class="k">return</span> <span class="n">words</span></div>
+
+
+<div class="viewcode-block" id="Dictionary.print_word">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.print_word">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Look up and print all the words in the dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dictionary (dict): the dictionary containing vocabularies,</span>
+<span class="sd">                               meanings, and examples</span>
+
+<span class="sd">            words (list[str]): list of words</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_word</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">word</span><span class="p">)</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">meaning</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">[</span><span class="n">word</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_meaning</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}{</span><span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">meaning</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">examples</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">:</span>
+                    <span class="n">example</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\{&#39;</span><span class="p">,</span> <span class="s1">&#39;{&#39;</span><span class="p">)</span>
+                    <span class="n">example</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\}&#39;</span><span class="p">,</span> <span class="s1">&#39;}&#39;</span><span class="p">)</span>
+
+                    <span class="n">begin_index</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span>
+                    <span class="n">end_index</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">begin_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">end_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_example</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="n">example</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}{</span><span class="n">example</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">begin</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="n">begin_index</span><span class="p">])</span>
+                        <span class="n">middle</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span>
+                                <span class="n">example</span><span class="p">[</span><span class="n">begin_index</span><span class="p">:</span> <span class="n">end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                        <span class="n">end</span> <span class="o">=</span> <span class="n">Word</span><span class="o">.</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="n">end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:])</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_example</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">begin</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_highlight</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">middle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_example</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dictionary.generate_game">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.generate_game">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_game</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Game</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Generate a word-filling game&#39;&#39;&#39;</span>
+        <span class="c1"># Select word, meaning, example</span>
+        <span class="n">word</span><span class="p">,</span> <span class="n">word_info</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="n">meaning</span><span class="p">,</span> <span class="n">examples</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">word_info</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">examples</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoExampleFound</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="n">example</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">examples</span><span class="p">)</span> <span class="k">if</span> <span class="n">examples</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># Generate the multiple choices</span>
+        <span class="n">cindices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">num_multiple_choices</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cindices</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">:</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">choices</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">word</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">choices</span><span class="p">,</span> <span class="n">word</span><span class="p">]</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Game</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">meaning</span><span class="p">,</span> <span class="n">example</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dictionary.verify">
+<a class="viewcode-back" href="../vocab.html#vocab.Dictionary.verify">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Verify the dictionary file&#39;&#39;&#39;</span>
+        <span class="c1"># Verify that all meanings have at least an example</span>
+        <span class="n">need_examples</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">word</span>
+                            <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">meanings</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">meaning</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="n">meanings</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">examples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">need_examples</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_word</span><span class="p">([</span><span class="n">word</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">need_examples</span>
+
+        <span class="c1"># Verify that the word in the examples is enclosed with { and }</span>
+        <span class="c1"># This is necessary for the game to work as expected.</span>
+        <span class="n">all_examples</span> <span class="o">=</span> <span class="p">[</span><span class="n">examples</span>
+                        <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">meanings</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">meaning</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="n">meanings</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">examples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">missing_quotes</span> <span class="o">=</span> <span class="p">[</span><span class="n">example</span>
+                          <span class="k">for</span> <span class="n">examples</span> <span class="ow">in</span> <span class="n">all_examples</span>
+                          <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">examples</span>
+                          <span class="k">if</span> <span class="s1">&#39;{&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">example</span> <span class="ow">or</span> <span class="s1">&#39;}&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">example</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">missing_quotes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">missing_quotes</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="process_arguments">
+<a class="viewcode-back" href="../vocab.html#vocab.process_arguments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Process the command line arguments</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (argparse.Namespace) parsed command line arguments</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;--all&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print all words in the dictionary&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,</span> <span class="s1">&#39;--game&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Play the game to fill in the blank&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--search&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Search the word&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-V&#39;</span><span class="p">,</span> <span class="s1">&#39;--verify&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Verify the dictionary file&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print debug information&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="play_word_game">
+<a class="viewcode-back" href="../vocab.html#vocab.play_word_game">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">play_word_game</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Play the word game</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dictionary (Dictionary): the dictionary object</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">game</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">generate_game</span><span class="p">()</span>
+    <span class="n">game</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+
+    <span class="n">attempt</span><span class="p">,</span> <span class="n">max_attempt</span><span class="p">,</span> <span class="n">new_game</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter your answer or q/Q to quite:&#39;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">answer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">check_answer</span><span class="p">(</span><span class="n">answer</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span> <span class="s2">&quot;That&#39;s correct! Congratulation&quot;</span> <span class="o">+</span>
+                  <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+            <span class="n">new_game</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="n">max_attempt</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="s2">&quot;That&#39;s too bad!&quot;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+                <span class="n">new_game</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="s2">&quot;Try again!&quot;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+                <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter your answer or q/Q to quite:&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new_game</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Result</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">word</span><span class="p">,</span> <span class="n">game</span><span class="o">.</span><span class="n">meaning</span><span class="p">,</span>
+                                  <span class="n">attempt</span> <span class="o">&lt;</span> <span class="n">max_attempt</span><span class="p">))</span>
+            <span class="n">attempt</span><span class="p">,</span> <span class="n">new_game</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="n">game</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">generate_game</span><span class="p">()</span>
+            <span class="n">game</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter your answer or q/Q to quite:&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Print the summary of the games being played</span>
+    <span class="n">num_correct</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">correct</span><span class="p">])</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="n">percent</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">num_correct</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">/</span><span class="n">total</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Result = </span><span class="si">{</span><span class="n">num_correct</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">dictionary</span><span class="o">.</span><span class="n">print_word</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">correct</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../vocab.html#vocab.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The main function&#39;&#39;&#39;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">process_arguments</span><span class="p">()</span>
+
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span> <span class="vm">__file__</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">vocab_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">script_path</span><span class="p">,</span> <span class="n">VOCAB_FILE</span> <span class="p">)</span>
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="n">Dictionary</span><span class="p">(</span><span class="n">vocab_filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verify</span><span class="p">:</span>
+        <span class="n">dictionary</span><span class="o">.</span><span class="n">verify</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dictionary size = </span><span class="si">{</span><span class="n">dictionary</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s1"> words&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">game</span><span class="p">:</span>
+        <span class="n">play_word_game</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">search</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">search</span> <span class="k">else</span> \
+                <span class="n">dictionary</span><span class="o">.</span><span class="n">select_words</span><span class="p">(</span><span class="n">all_words</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
+        <span class="n">dictionary</span><span class="o">.</span><span class="n">print_word</span><span class="p">(</span><span class="n">words</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
