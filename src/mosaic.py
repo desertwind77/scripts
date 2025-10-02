@@ -209,15 +209,17 @@ def parse_argument():
                         help='output image')
     parser.add_argument('--seed', type=int,
                         help='Random seed for reproducible layout')
-    parser.add_argument('-s', '--show', action='store_true',
+    parser.add_argument('--show', action='store_true',
                         help='show the final image')
-    parser.add_argument('-t', '--tiles', default=64,
+    parser.add_argument('--tiles', default=64,
                         # Set the minimum number of tiles to 16
                         type=lambda x: validate_range(x, 16 ),
                         help='number of tiles on the shorter side of '
                         'the target image (default=64).')
-    parser.add_argument('target', help='target image')
-    parser.add_argument('source', help='source folder for the input images')
+    parser.add_argument('-s', '---source', nargs='*', required=True,
+                        help='source folder for the input images')
+    parser.add_argument('-t', '--target', nargs='*', required=True,
+                        help='target image')
     return parser.parse_args()
 
 def main():
@@ -230,8 +232,8 @@ def main():
         mode = args.mode
         opacity = int(args.opacity)
         output_filename = args.output
-        source_image_dir = args.source
-        target_image_name = args.target
+        source_image_dir = ' '.join( args.source )
+        target_image_name = ' '.join( args.target )
         tiles_on_short_side = int(args.tiles)
 
         # Determine the output format from the output file extension
