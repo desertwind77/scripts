@@ -49,7 +49,7 @@ def is_eligible(file_path):
     '''Is a file eligible for conversion?'''
     if not os.path.isfile(file_path):
         return False
-    if str(file_path.suffix).lower() not in [ '.arw', '.crw', .nef', ]:
+    if str(file_path.suffix).lower() not in [ '.arw', '.crw', '.nef', ]:
         return False
     dng = f'{str(file_path.stem)}.dng'
     return not os.path.exists(dng)
