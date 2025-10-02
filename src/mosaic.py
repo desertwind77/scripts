@@ -220,7 +220,7 @@ def parse_argument():
                         type=lambda x: validate_range(x, 16 ),
                         help='number of tiles on the shorter side of '
                         'the target image (default=64).')
-    parser.add_argument('-s', '---source', nargs='*', required=True,
+    parser.add_argument('-s', '--source', nargs='*', required=True,
                         help='source folder for the input images')
     parser.add_argument('-t', '--target', nargs='*', required=True,
                         help='target image')
