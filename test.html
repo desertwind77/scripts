@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>test package &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quote module" href="quote.html" />
+    <link rel="prev" title="src" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">test package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-test.test_quote">test.test_quote module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_quote.filename"><code class="docutils literal notranslate"><span class="pre">filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_quote.quotedb"><code class="docutils literal notranslate"><span class="pre">quotedb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_quote.test_print_all"><code class="docutils literal notranslate"><span class="pre">test_print_all()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-test.test_vocab">test.test_vocab module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.dictionary"><code class="docutils literal notranslate"><span class="pre">dictionary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.filename"><code class="docutils literal notranslate"><span class="pre">filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.test_game_correct"><code class="docutils literal notranslate"><span class="pre">test_game_correct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.test_game_incorrect"><code class="docutils literal notranslate"><span class="pre">test_game_incorrect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.test_print_all"><code class="docutils literal notranslate"><span class="pre">test_print_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_vocab.test_print_non_exist_word"><code class="docutils literal notranslate"><span class="pre">test_print_non_exist_word()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-test.test_zipall">test.test_zipall module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.create_file"><code class="docutils literal notranslate"><span class="pre">create_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.folders"><code class="docutils literal notranslate"><span class="pre">folders()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.get_folder_content"><code class="docutils literal notranslate"><span class="pre">get_folder_content()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.hidden_files"><code class="docutils literal notranslate"><span class="pre">hidden_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.non_hidden_files"><code class="docutils literal notranslate"><span class="pre">non_hidden_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.original_files"><code class="docutils literal notranslate"><span class="pre">original_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.test_dry_run"><code class="docutils literal notranslate"><span class="pre">test_dry_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.test_unzip"><code class="docutils literal notranslate"><span class="pre">test_unzip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.test_unzip_delete"><code class="docutils literal notranslate"><span class="pre">test_unzip_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.test_zip"><code class="docutils literal notranslate"><span class="pre">test_zip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.test_zip_delete"><code class="docutils literal notranslate"><span class="pre">test_zip_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.tmp_dir_name"><code class="docutils literal notranslate"><span class="pre">tmp_dir_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test.test_zipall.zip_files"><code class="docutils literal notranslate"><span class="pre">zip_files()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-test">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quote.html">quote module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vmgr.html">vmgr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocab.html">vocab module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zipall.html">zipall module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tic_tac_toe.html">tic_tac_toe module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdfmgr.html">pdfmgr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txt2mp3.html">txt2mp3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flac2mp3.html">flac2mp3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finreport.html">finreport module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="portmgr.html">portmgr module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">test package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/test.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="test-package">
+<h1>test package<a class="headerlink" href="#test-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-test.test_quote">
+<span id="test-test-quote-module"></span><h2>test.test_quote module<a class="headerlink" href="#module-test.test_quote" title="Link to this heading"></a></h2>
+<p>Test file for the quote.py script</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_quote.filename">
+<span class="sig-prename descclassname"><span class="pre">test.test_quote.</span></span><span class="sig-name descname"><span class="pre">filename</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_quote.html#filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_quote.filename" title="Link to this definition"></a></dt>
+<dd><p>Return the location of the dictionary file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_quote.quotedb">
+<span class="sig-prename descclassname"><span class="pre">test.test_quote.</span></span><span class="sig-name descname"><span class="pre">quotedb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_quote.html#quotedb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_quote.quotedb" title="Link to this definition"></a></dt>
+<dd><p>Return the QuoteDB object</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_quote.test_print_all">
+<span class="sig-prename descclassname"><span class="pre">test.test_quote.</span></span><span class="sig-name descname"><span class="pre">test_print_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quotedb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_quote.html#test_print_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_quote.test_print_all" title="Link to this definition"></a></dt>
+<dd><p>Just print the whole quote database and see if it will crash</p>
+</dd></dl>
+
+</section>
+<section id="module-test.test_vocab">
+<span id="test-test-vocab-module"></span><h2>test.test_vocab module<a class="headerlink" href="#module-test.test_vocab" title="Link to this heading"></a></h2>
+<p>Test file for the vocab.py script</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.dictionary">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#dictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.dictionary" title="Link to this definition"></a></dt>
+<dd><p>Return the Dictionary object</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.filename">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">filename</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.filename" title="Link to this definition"></a></dt>
+<dd><p>Return the location of the dictionary file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.test_game_correct">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">test_game_correct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#test_game_correct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.test_game_correct" title="Link to this definition"></a></dt>
+<dd><p>Answer a game correctly</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.test_game_incorrect">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">test_game_incorrect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#test_game_incorrect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.test_game_incorrect" title="Link to this definition"></a></dt>
+<dd><p>Answer a game incorrectly</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.test_print_all">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">test_print_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#test_print_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.test_print_all" title="Link to this definition"></a></dt>
+<dd><p>Print the whole dictionary</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_vocab.test_print_non_exist_word">
+<span class="sig-prename descclassname"><span class="pre">test.test_vocab.</span></span><span class="sig-name descname"><span class="pre">test_print_non_exist_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_vocab.html#test_print_non_exist_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_vocab.test_print_non_exist_word" title="Link to this definition"></a></dt>
+<dd><p>Search for a non-existent word</p>
+</dd></dl>
+
+</section>
+<section id="module-test.test_zipall">
+<span id="test-test-zipall-module"></span><h2>test.test_zipall module<a class="headerlink" href="#module-test.test_zipall" title="Link to this heading"></a></h2>
+<p>Test file for the zipall.py script</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.create_file">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">create_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/test/test_zipall.html#create_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.create_file" title="Link to this definition"></a></dt>
+<dd><p>Create a new temp file for our testing</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): the name of the file</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.folders">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">folders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.folders" title="Link to this definition"></a></dt>
+<dd><p>Returns the folder names</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.get_folder_content">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">get_folder_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/test/test_zipall.html#get_folder_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.get_folder_content" title="Link to this definition"></a></dt>
+<dd><p>Get the list of files and subfolders in the folder</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>folder (str): the name of the folder</p>
+</dd>
+<dt>Returns:</dt><dd><p>list[str]: the list of files and subfolders</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.hidden_files">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">hidden_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#hidden_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.hidden_files" title="Link to this definition"></a></dt>
+<dd><p>Returns the hidden files</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.non_hidden_files">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">non_hidden_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#non_hidden_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.non_hidden_files" title="Link to this definition"></a></dt>
+<dd><p>Returns the non-hidden files</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.original_files">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">original_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">non_hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folders</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#original_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.original_files" title="Link to this definition"></a></dt>
+<dd><p>Returns both the hidden and non-hidden files</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.test_dry_run">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">test_dry_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#test_dry_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.test_dry_run" title="Link to this definition"></a></dt>
+<dd><p>Verify the dry run mode</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.test_unzip">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">test_unzip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#test_unzip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.test_unzip" title="Link to this definition"></a></dt>
+<dd><p>Verify the unzip functionality</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.test_unzip_delete">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">test_unzip_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#test_unzip_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.test_unzip_delete" title="Link to this definition"></a></dt>
+<dd><p>Verify the unzip functionality with the delete option</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.test_zip">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">test_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#test_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.test_zip" title="Link to this definition"></a></dt>
+<dd><p>Verify the zip functionality</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.test_zip_delete">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">test_zip_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#test_zip_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.test_zip_delete" title="Link to this definition"></a></dt>
+<dd><p>Verify the zip functionality with the delete option</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.tmp_dir_name">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">tmp_dir_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_hidden_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folders</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#tmp_dir_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.tmp_dir_name" title="Link to this definition"></a></dt>
+<dd><p>This fixture creates a temporary directory and its original files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test.test_zipall.zip_files">
+<span class="sig-prename descclassname"><span class="pre">test.test_zipall.</span></span><span class="sig-name descname"><span class="pre">zip_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">non_hidden_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test/test_zipall.html#zip_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test.test_zipall.zip_files" title="Link to this definition"></a></dt>
+<dd><p>Return the expected zip files in the temp directory</p>
+</dd></dl>
+
+</section>
+<section id="module-test">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-test" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="src" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quote.html" class="btn btn-neutral float-right" title="quote module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
