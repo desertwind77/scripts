@@ -113,7 +113,7 @@ class MosaicGenerator:
         enhanced_image = enhancer.enhance(brightness_factor)
         return enhanced_image
 
-    def create_background_image(self) -> Image.Image:
+    def create_background_image(self, debug: bool = False) -> Image.Image:
         '''Create the background image'''
         logger.debug('Creating the background image')
 
@@ -146,15 +146,19 @@ class MosaicGenerator:
                 tile = tile.crop((0, 0, x1 - x0, y1 - y0))
             mosaic_image.paste(tile.convert('RGB'), (x0, y0))
 
+        if debug:
+            mosaic_image.save( 'background.png', 'PNG' )
+
         return mosaic_image
 
     def create_mosaic(self, mode: str = 'soft_light',
                       alpha: float = 0.35,
                       opacity_percentage: int = 100,
-                      brightness_factor: float = 1.0) -> Image.Image:
+                      brightness_factor: float = 1.0,
+                      debug: bool = False) -> Image.Image:
         '''Create the final mosaic image'''
         self.print_summary()
-        background_image = self.create_background_image()
+        background_image = self.create_background_image(debug=debug)
 
         logger.debug('Creating the photo mosaic')
         if mode == 'blend':
@@ -258,7 +262,8 @@ def main():
 
         # Generate and save a mosaic image
         start_time = time.perf_counter()
-        final_image = mosaic.create_mosaic(mode, alpha, opacity, brightness)
+        final_image = mosaic.create_mosaic(mode, alpha, opacity, brightness,
+                                           debug=args.debug)
         end_time = time.perf_counter()
         final_image.save(output_filename, format=output_format)
         elapsed_time = end_time - start_time
