@@ -19,8 +19,10 @@ def plot_ticker_growth(tickers, start="2020-01-01", end=None):
     """
     # Download data
     data = yf.download(tickers, start=start, end=end)
-    if data is not None:
-        data = data['Close']
+    if data is None:
+        print(f'Unable to fetch data')
+        return
+    data = data['Close']
 
     # Normalize so that all series start at 100 for easy comparison
     normalized = data / data.iloc[0] * 100
