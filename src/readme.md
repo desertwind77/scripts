@@ -10,7 +10,7 @@
 |dashrm|Remove an item for MacOS dashboard (dangerous)|
 |mobilemgr|Organize iPhone photo backup|
 |mosaic|Create a mosaic photo|
-|pdfmrg|Encrypt, decrypt, interleave or merge pdf files|
+|pdfmgr|Encrypt, decrypt, interleave or merge pdf files|
 |portmgr|Copy photo to the storage| 
 |quote|Print a quote|
 |raw2dng|Convert RAW files to DNG format|
