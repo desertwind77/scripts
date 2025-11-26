@@ -4,7 +4,7 @@
 from concurrent.futures.process import ProcessPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import argparse
 import concurrent
 import os
@@ -19,6 +19,34 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import APIC
 from pydub import AudioSegment
 from pydub.utils import mediainfo
+
+DISC_NUMBER_PATTERN = re.compile(r'^(?:cd|disc)[\s._-]*(\d+)', re.IGNORECASE)
+
+
+def _path_parts_without_anchor(path: Path) -> List[str]:
+    '''Return path parts without drive/root information'''
+    parts = list(path.parts)
+    if parts and parts[0] == path.anchor:
+        parts = parts[1:]
+    return [part for part in parts if part]
+
+
+def _has_disc_component(path: Path) -> bool:
+    '''Check whether any component indicates a disc/CD folder'''
+    for part in _path_parts_without_anchor(path):
+        low = part.lower()
+        if low.startswith('cd') or low.startswith('disc'):
+            return True
+    return False
+
+
+def _extract_disc_number(flac_path: Path) -> Optional[int]:
+    '''Extract the disc number from any ancestor folder'''
+    for parent in flac_path.parents:
+        match = DISC_NUMBER_PATTERN.match(parent.name)
+        if match:
+            return int(match.group(1))
+    return None
 
 
 @dataclass(frozen=True)
@@ -85,37 +113,38 @@ def process_all_folders(dst: str, folders: List[str],
         Args:
             folder (str): the folder to check
         '''
-        contents = os.listdir(folder)
-        keyword_cd = any('cd' in c.lower() for c in contents)
-        keyword_disc = any('disc' in c.lower() for c in contents)
-        keyword_flac = any('.flac' in c.lower() for c in contents)
+        with os.scandir(folder) as it:
+            entries = list(it)
+        dir_names = [entry.name.lower() for entry in entries if entry.is_dir()]
+        file_names = [entry.name.lower() for entry in entries if entry.is_file()]
+        keyword_cd = any(name.startswith('cd') for name in dir_names)
+        keyword_disc = any(name.startswith('disc') for name in dir_names)
+        keyword_flac = any(name.endswith('.flac') for name in file_names)
         assert not (keyword_cd and keyword_disc), \
             "CD and Disc are mutually exclusive"
         assert not ((keyword_cd or keyword_disc) and keyword_flac), \
             "CD/Disc and .flac are mutually exclusive"
 
-    def get_copy_info(flac, dst_folder, mp3_folder=None, flatten=False):
-        flac_str = str(flac)
-        mp3 = os.path.splitext(flac.name)[0] + '.mp3'
+    def get_copy_info(flac: Path, dst_folder: str,
+                      mp3_folder: Optional[Path] = None,
+                      flatten: bool = False) -> ConvertInfo:
+        flac_path = Path(flac)
+        mp3_name = f'{flac_path.stem}.mp3'
 
-        disc_no = None
-        if flatten and 'CD' in flac_str:
-            obj = re.search(r'CD (\d+)\/.*\.flac', flac_str)
-            disc_no = int(obj.group(1)) if obj else None
-        if flatten and 'Disc' in flac_str:
-            obj = re.search(r'Disc (\d+).*\/.*\.flac', flac_str)
-            disc_no = int(obj.group(1)) if obj else None
+        disc_no = _extract_disc_number(flac_path) if flatten else None
+        target_dir = Path(dst_folder)
+        folder_to_use = mp3_folder
 
-        if disc_no:
-            mp3_folder = mp3_folder.split('/')[0]
-            mp3 = f'{disc_no:02}_{mp3}'
-            mp3 = os.path.join(dst_folder, mp3_folder, mp3)
-        else:
-            if mp3_folder:
-                mp3 = os.path.join(dst_folder, mp3_folder, mp3)
-            else:
-                mp3 = os.path.join(dst_folder, mp3)
-        return ConvertInfo(flac, mp3)
+        if disc_no is not None:
+            mp3_name = f'{disc_no:02}_{mp3_name}'
+            if folder_to_use and folder_to_use.parts:
+                folder_to_use = Path(folder_to_use.parts[0])
+
+        if folder_to_use:
+            target_dir /= folder_to_use
+
+        mp3_path = target_dir / mp3_name
+        return ConvertInfo(str(flac_path), str(mp3_path))
 
     for folder in folders:
         sanity_check(folder)
@@ -134,12 +163,14 @@ def process_all_folders(dst: str, folders: List[str],
                 # The flac files are in the current directory.
                 copy_info.append(get_copy_info(flac, dst))
             else:
-                parent_str = str(parent).split('/')
-                if 'CD' in str(parent) or 'Disc' in str(parent):
-                    mp3_folder = parent_str[-2:]
+                parent_parts = _path_parts_without_anchor(parent)
+                has_disc_component = _has_disc_component(parent)
+                if parent_parts:
+                    tail_length = 2 if has_disc_component and len(parent_parts) >= 2 else 1
+                    rel_parts = parent_parts[-tail_length:]
+                    mp3_folder = Path(*rel_parts)
                 else:
-                    mp3_folder = parent_str[-1:]
-                mp3_folder = os.path.join(*mp3_folder)
+                    mp3_folder = None
                 copy_info.append(
                         get_copy_info(flac, dst, mp3_folder=mp3_folder, flatten=flatten))
     return copy_info
@@ -165,6 +196,8 @@ def convert(info: ConvertInfo) -> None:
     # Copy the album arts from flac to mp3
     flac_tags = FLAC(info.src)
     mp3_tags = MP3(info.dst)
+    if mp3_tags.tags is None:
+        mp3_tags.add_tags()
     for pic in flac_tags.pictures:
         if pic.type != 3:
             continue
