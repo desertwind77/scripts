@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pdfmgr module &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="txt2mp3 module" href="txt2mp3.html" />
+    <link rel="prev" title="tic_tac_toe module" href="tic_tac_toe.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="test.html">test package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quote.html">quote module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vmgr.html">vmgr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocab.html">vocab module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zipall.html">zipall module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tic_tac_toe.html">tic_tac_toe module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pdfmgr module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.decrypt"><code class="docutils literal notranslate"><span class="pre">decrypt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.encrypt"><code class="docutils literal notranslate"><span class="pre">encrypt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.interleave"><code class="docutils literal notranslate"><span class="pre">interleave()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.merge"><code class="docutils literal notranslate"><span class="pre">merge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.open_pdf"><code class="docutils literal notranslate"><span class="pre">open_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.parse"><code class="docutils literal notranslate"><span class="pre">parse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.parse_arguments"><code class="docutils literal notranslate"><span class="pre">parse_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.reverse"><code class="docutils literal notranslate"><span class="pre">reverse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdfmgr.write_pdf"><code class="docutils literal notranslate"><span class="pre">write_pdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="txt2mp3.html">txt2mp3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flac2mp3.html">flac2mp3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finreport.html">finreport module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="portmgr.html">portmgr module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">pdfmgr module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pdfmgr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pdfmgr">
+<span id="pdfmgr-module"></span><h1>pdfmgr module<a class="headerlink" href="#module-pdfmgr" title="Link to this heading"></a></h1>
+<p>A script to manage PDF files</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.decrypt">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#decrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.decrypt" title="Link to this definition"></a></dt>
+<dd><p>Decrypt the source file (src) with the password
+and save to the new file (dst)</p>
+<dl>
+<dt>Args:</dt><dd><p>src (str): the source PDF file</p>
+<p>dst (str): the destination PDF file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.encrypt">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#encrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.encrypt" title="Link to this definition"></a></dt>
+<dd><p>Encrypt the source file (src) with the password
+and save to the new file (dst)</p>
+<dl>
+<dt>Args:</dt><dd><p>src (str): the source PDF file</p>
+<p>dst (str): the destination PDF file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.interleave">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">interleave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">odd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">even</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#interleave"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.interleave" title="Link to this definition"></a></dt>
+<dd><p>Interleave two pdf files, one of which contains only the odd pages and
+the other contains only the even pages, and then save to the destination
+PDF file</p>
+<dl>
+<dt>Args:</dt><dd><p>odd (str): the source file containing the odd pages</p>
+<p>even (str): the source file containing the even pages</p>
+<p>dst (str): the destination PDF file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.main">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.main" title="Link to this definition"></a></dt>
+<dd><p>The main function</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.merge">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.merge" title="Link to this definition"></a></dt>
+<dd><p>Merge multiple PDF files into a single PDF file</p>
+<dl>
+<dt>Args:</dt><dd><p>sources (str): the list of the source PDF files to merge</p>
+<p>dst (str): the destination PDF file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.open_pdf">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">open_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PdfReader</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#open_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.open_pdf" title="Link to this definition"></a></dt>
+<dd><p>Open a PDF file for reading</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): the source PDF filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.parse">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.parse" title="Link to this definition"></a></dt>
+<dd><p>Extract text from a PDF file and save to a text file</p>
+<dl>
+<dt>Args:</dt><dd><p>source (str): the source PDF file</p>
+<p>dst (str): the destination text file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.parse_arguments">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">parse_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#parse_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.parse_arguments" title="Link to this definition"></a></dt>
+<dd><p>Parse the command line argument</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>None</p>
+</dd>
+<dt>Return:</dt><dd><p>argparse.Namespace: parsed command line arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.reverse">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.reverse" title="Link to this definition"></a></dt>
+<dd><p>Reverse the page order in a PDF file</p>
+<dl>
+<dt>Args:</dt><dd><p>src (str): the source PDF file</p>
+<p>dst (str): the destination PDF file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdfmgr.write_pdf">
+<span class="sig-prename descclassname"><span class="pre">pdfmgr.</span></span><span class="sig-name descname"><span class="pre">write_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PdfWriter</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pdfmgr.html#write_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pdfmgr.write_pdf" title="Link to this definition"></a></dt>
+<dd><p>Write the content of the writer to filename</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): the destination PDF filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tic_tac_toe.html" class="btn btn-neutral float-left" title="tic_tac_toe module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="txt2mp3.html" class="btn btn-neutral float-right" title="txt2mp3 module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

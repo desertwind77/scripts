@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quote &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quote</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quote</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&#39;&#39;&#39;A script to randomly print a quote&#39;&#39;&#39;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">colorama</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+
+
+<span class="n">QUOTE_FILE</span> <span class="o">=</span> <span class="s1">&#39;config/Quotes.md&#39;</span>
+
+
+<div class="viewcode-block" id="Quote">
+<a class="viewcode-back" href="../quote.html#quote.Quote">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Quote</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;A class to represent a quote&#39;&#39;&#39;</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="nb">dict</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="QuoteDB">
+<a class="viewcode-back" href="../quote.html#quote.QuoteDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuoteDB</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The class to represent the quote database&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Constructor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): the qoute database file</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuoteDB.add_tag">
+<a class="viewcode-back" href="../quote.html#quote.QuoteDB.add_tag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">:</span> <span class="n">Quote</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Add quote to the tag dictionary for future lookup by tag</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            qoute (Quote): the Qoute object to add</span>
+
+<span class="sd">            tags (list[str]): the list of tags to associate with this Quote</span>
+<span class="sd">                              object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tags</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tags_dict</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QuoteDB.add_quote">
+<a class="viewcode-back" href="../quote.html#quote.QuoteDB.add_quote">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_quote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Add a quote to the database</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quote (str): the quote to add</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">sanitize_text</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">num_line</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_line</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">txt</span>
+
+        <span class="n">tags</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;[//]: #&#39;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="c1"># Process the Markdown comment [//]: # (comment here)</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\[\/</span><span class="si">{2}</span><span class="s1">\]: # \((.*)\)$&#39;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+            <span class="k">assert</span> <span class="n">obj</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Unable to parse the comment</span><span class="se">\n</span><span class="si">{</span><span class="n">lines</span><span class="p">[</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span>
+            <span class="n">quote</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="n">new_quotes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s1">&#39;span style&#39;</span> <span class="ow">in</span> <span class="n">quote</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">quote</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">new_quotes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_quotes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">new_quotes</span><span class="p">:</span>
+            <span class="n">quote</span> <span class="o">=</span> <span class="n">Quote</span><span class="p">(</span><span class="n">sanitize_text</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">tags</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_tag</span><span class="p">(</span><span class="n">quote</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QuoteDB.load_quote_db">
+<a class="viewcode-back" href="../quote.html#quote.QuoteDB.load_quote_db">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_quote_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Load the quotes from the quote files</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbsoe (bool): print debug info</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">quote_file</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">quote_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;# Quotes&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="c1"># Skip the first line which is the filename.</span>
+                    <span class="c1"># This is the requirement of MWeb Pro that I use to</span>
+                    <span class="c1"># write the Markdown notes</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">msg</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="c1"># A blank new line means the end of the current quote.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_quote</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                    <span class="c1"># Ignore ``` which is a tag for the beginning or ending</span>
+                    <span class="c1"># of a quoted text in markdown.</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">line</span>
+            <span class="k">if</span> <span class="n">msg</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="c1"># Handle the last quote in the file</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_quote</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;size = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QuoteDB.print_quotes">
+<a class="viewcode-back" href="../quote.html#quote.QuoteDB.print_quotes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_quotes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_quotes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Print quotes</span>
+
+<span class="sd">        args:</span>
+<span class="sd">            all (bool) : print all quotes if true; otherwise, randomly print</span>
+<span class="sd">                one quote</span>
+
+<span class="sd">            tag (str) : print only the quote with this tag</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_quote_db</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags_dict</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags_dict</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">if</span> <span class="n">all_quotes</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span>
+            <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">color</span><span class="si">}{</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span> <span class="k">else</span> <span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span>
+                <span class="nb">print</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="si">}{</span><span class="n">data</span><span class="p">[</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="p">]</span><span class="si">}{</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="parse_arguments">
+<a class="viewcode-back" href="../quote.html#quote.parse_arguments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Parse the command line argument</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        argparse.Namespace: parsed command line arguments</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Quote&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;--all&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print all quotes&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--tag&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print only quotes with this tag&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print debug information&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../quote.html#quote.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The main function&#39;&#39;&#39;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
+
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span> <span class="vm">__file__</span> <span class="p">))</span>
+    <span class="n">abs_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">QUOTE_FILE</span><span class="p">)</span>
+
+    <span class="n">quote_db</span> <span class="o">=</span> <span class="n">QuoteDB</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">)</span>
+    <span class="n">quote_db</span><span class="o">.</span><span class="n">print_quotes</span><span class="p">(</span><span class="n">all_quotes</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

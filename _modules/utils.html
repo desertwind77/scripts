@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils &mdash; Scripts Documentation 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scripts Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scripts Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;Utility functions&#39;&#39;&#39;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="get_abs_path">
+<a class="viewcode-back" href="../utils.html#utils.get_abs_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_abs_path</span><span class="p">(</span><span class="n">caller</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Concatenate the filename to the absolute location of the caller script</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        caller (str): the caller script</span>
+
+<span class="sd">        filename (str): input filename</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the absolute path of the input filename</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">caller</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="setup_logging">
+<a class="viewcode-back" href="../utils.html#utils.setup_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_logging</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Set up logging facility</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): the name of the log file</span>
+
+<span class="sd">        verbose (bool): print debug information, as well.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">file_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
+        <span class="s1">&#39;filemode&#39;</span><span class="p">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">stream_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;stream&#39;</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="p">}</span>
+    <span class="n">format_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log_params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">file_params</span><span class="p">,</span> <span class="o">**</span><span class="n">format_params</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">stream_params</span><span class="p">,</span> <span class="o">**</span><span class="n">format_params</span><span class="p">}</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="o">**</span><span class="n">log_params</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="execute">
+<a class="viewcode-back" href="../utils.html#utils.execute">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">discard_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Call an external command</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cmd (str): the external command to execute</span>
+
+<span class="sd">        discard_error (bool): skip logging error</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the execution succeed</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Because of the flag check=True, subprocess will raise an</span>
+        <span class="c1"># exception on the face of errors because we don&#39;t want to</span>
+        <span class="c1"># check the result manually.</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+                       <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">discard_error</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Error occur when executing: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="check_exists">
+<a class="viewcode-back" href="../utils.html#utils.check_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_exists</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_file</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Check if a file or a folder exists</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): the name of the file or folder</span>
+
+<span class="sd">        is_file (bool): a flag to indicate if we want to check</span>
+<span class="sd">                         for a file or a folder</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IsADirectoryError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_config">
+<a class="viewcode-back" href="../utils.html#utils.load_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_config</span><span class="p">(</span><span class="n">script_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Load the configuration stored in a JSON file. The configuration must</span>
+<span class="sd">    be stored with the key &#39;config&#39;.</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        script_file (str): the script that calls this function</span>
+
+<span class="sd">        config_filename (str): the JSON file storing the configuration</span>
+
+<span class="sd">        verbose (bool): print the debug information or not</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        a dictionary containing the configuration</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># __file__ stores the absolute path of the python script</span>
+    <span class="c1"># realpath() return the canonical path of the specified</span>
+    <span class="c1"># filename by eliminating any symbolic links encountered</span>
+    <span class="c1"># in the path</span>
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_file</span><span class="p">))</span>
+    <span class="n">config_abs_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">check_exists</span><span class="p">(</span><span class="n">config_abs_filename</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_abs_filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading config file: </span><span class="si">{</span><span class="n">config_abs_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">and</span> <span class="s2">&quot;Destinations&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">destinations</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;Destinations&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">destinations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">check_exists</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+
+<div class="viewcode-block" id="ConfigFileBase">
+<a class="viewcode-back" href="../utils.html#utils.ConfigFileBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigFileBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;The parent class for managing JSON config file&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ConfigFileBase.load_config">
+<a class="viewcode-back" href="../utils.html#utils.ConfigFileBase.load_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Load the configuration stored in a JSON file. The configuration must</span>
+<span class="sd">        be stored with the key &#39;config&#39;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_filename (str): the JSON file storing the configuration</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing the configuration</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">check_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loading </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">config_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Athichart Tangpong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
