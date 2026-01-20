@@ -60,6 +60,8 @@ def find_convert_info(source, dry_run=False):
     conversion_list = []
 
     src_path = Path(source)
+    if not src_path.exists():
+        return conversion_list
     for folder in src_path.iterdir():
         if folder in IGNORED_FOLDERS:
             continue
@@ -90,6 +92,8 @@ def find_convert_info(source, dry_run=False):
 def rename_file(source, dry_run=False):
     '''Rename files'''
     src_path = Path(source)
+    if not src_path.exists():
+        return
     for folder in src_path.iterdir():
         files = list(folder.glob('**/*.*'))
         files = [ f for f in files if str(f.suffix).lower() == '.dng' ]
