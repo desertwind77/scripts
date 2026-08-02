@@ -334,6 +334,7 @@
                "KS Crepes",
                { "Kyushu Noodle": "Food in Bali 2024" },
                "La Fontaine",
+               "Lacha Somtum",
                "LAKE OSWEGO ICE CREAMERY",
                "Le Creme Cafe",
                { "Le Petit Jemma": "Food in Bali 2024" },
@@ -364,6 +365,7 @@
                "Must Be Thai",
                "Myung Rang",
                "Myungrang",
+               "New England Lobster Burlingame",
                "New Krung Siam",
                "New Port Restaurant",
                "Noodleosop",
@@ -464,6 +466,7 @@
                "Valencia Street Stat",
                "Vons Chicken",
                "Vua Kho Bo",
+               "UEP Taning Sunnyvale",
                "UEP Seasons Noodles",
                "Ume Tea",
                "Wetzel's Pretzels",
@@ -539,6 +542,10 @@
                "SP BLESSINGTOBUY BLESSINGTOBUYTX",
                "SP BLESSINGTOBUY PLANO TX"
             ],
+            "Insurance" : [
+               "AGI Renters",
+               "RLI Insurance Company"
+            ],
             "Laundry" : [
                "Wash Laundry"
             ],
@@ -547,6 +554,7 @@
                { "439309242 888-434-4532 MD" : "Ikea Online" },
                { "Air Show Network" : "Fleet Week in SF" },
                "aliexpress",
+               { "AMC 9640 Online" : "AMC Movie Theatre" },
                { "AMC Online" : "AMC Movie Theatre" },
                { "AMK Solar 4 America Ice": "Ice skate in SJ" },
                "Amzn Digital",
@@ -604,6 +612,7 @@
                { "Fever USA" : "Ticket for Michelangelo exibition" },
                { "FHDA CCD Foundation": "The Physic Show" },
                { "flowkey" : "Online piano training" },
+               "Foreign Currency Conversion Fee",
                "Foreign Transaction Fee",
                "Foto File MBK Bangkok TH",
                { "Friends of the sunnyv": "Sunnyvale Library Book Sale" },
@@ -661,6 +670,7 @@
                { "MLT" : "Book fair in Sunnyvale Christian School" },
                { "Modular Robotic" : "GoPiGo Robot" },
                "Mountain View Florist",
+               "Mountain Winery",
                { "Munchkin" : "Milk Bottle for Alice" },
                { "Multnomah Falls": "Food and souvenir from the fall" },
                { "Music Arms-Mall 6" : "Music Arms The Mall Ngamvongwarn" },
@@ -695,14 +705,17 @@
                "Scholastic Book Fairs",
                "Se-ed",
                "Sephora",
+               { "SFBA Stadium": "Levi Stadium" },
                "Sharks Ice at San Jose",
                "SheetMusicPlus.com",
                "Shiseido",
                { "SMM Plus" : "Siam Intercomics" },
                { "Soccer Shots Bay Area" : "Tisha's soccer class" },
+               "Soundbrenner",
                { "SP Atlas Headrest" : "Herman Miller Headrest" },
                { "SP Particula": "Board Game" },
                { "SP Sindenship": "Sinden Lightgun" },
+               { "Sindenshop": "Sinden Lightgun" },
                "Spirit Halloween",
                "Springer",
                "SkullNCo",
@@ -731,7 +744,6 @@
                "Turbotax",
                "U-Haul",
                "Udemy",
-               { "UEP Taning Synnyvale": "Tea" },
                { "Umbrella Entertainmen" : "Fleet Week in SF" },
                "UPS",
                { "Usborne Books" : "Sunnyvale Christian School bookfair" },
@@ -746,6 +758,7 @@
                "Wayfair",
                "Western Digital",
                { "Wikimedia" : "Wikipedia donation" },
+               "World Cup",
                { "Xreal Shop" : "Xreal AR Glasses" },
                "Zendure"
             ],
@@ -755,8 +768,10 @@
             ],
             "Transportation" : [
                { "64100 - South Hall" : "Parking" },
+               "ACE Parking",
                "Alamo Rent-a-car",
                "CA DMV",
+               "Caltrain",
                "Carts SFO SmarteCarte",
                "State of Calif DMV",
                "Chevron",
@@ -765,7 +780,9 @@
                "Fastrak",
                "FoxRentACar",
                "Geico",
+               "Ladot Meter Parking",
                "Laz Parking",
+               "Mtn Winery Parking",
                "Oak Tree Mazda",
                "OR Parks Silver Falls",
                "SFO Parking",
@@ -893,10 +910,8 @@
                "Interest Payment"
             ],
             "Insurance" : [
-               "AGI Renters",
                "Allianz Life Ins",
-               "American Gen Lif Ins",
-               "RLI Insurance Company"
+               "American Gen Lif Ins"
             ],
             "Online Shopping" : [
                "ATT Payment",
@@ -905,7 +920,8 @@
                { "Purchase Authorized": "Need to use debit card b/c credit card was hacked" },
                "Zelle To Sunshine Skating",
                "Venmo Payment",
-               "Vesta  AT&T"
+               "Vesta  AT&T",
+               "Zelle"
             ],
             "Refund": [
                "Zelle From Ming Li",
