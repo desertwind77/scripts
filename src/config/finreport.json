@@ -91,6 +91,20 @@
                "SEARCH" : 4
             }
          },
+         "Wellsfargo Active" : {
+            "Enabled" : "True",
+            "Filename" : "(\\d{4})_(\\d{2})_active.csv",
+            "Type" : "Credit Card",
+            "Has Transaction Year" : "True",
+            "Has Postive Expenses" : "False",
+            "Fields" : {
+               "Transaction Date" : 0,
+               "Description" : 1,
+               "Amount" : 2,
+               "Unused1" : 3,
+               "SEARCH" : 1
+            }
+         },
          "Wellsfargo Autograph" : {
             "Enabled" : "True",
             "Filename" : "(\\d{4})_(\\d{2})_autograph.csv",
@@ -104,6 +118,20 @@
                "Unused2" : 3,
                "Description" : 4,
                "SEARCH" : 4
+            }
+         },
+         "Wellsfargo Autograph New" : {
+            "Enabled" : "True",
+            "Filename" : "(\\d{4})_(\\d{2})_autograph2.csv",
+            "Type" : "Credit Card",
+            "Has Transaction Year" : "True",
+            "Has Postive Expenses" : "False",
+            "Fields" : {
+               "Transaction Date" : 0,
+               "Description" : 1,
+               "Amount" : 2,
+               "Unused1" : 3,
+               "SEARCH" : 1
             }
          },
          "Wellsfargo Bilt" : {
@@ -160,6 +188,7 @@
                "Burlington Stores",
                "Carters",
                "Carter's",
+               "Childrens Place",
                "Clinique Online",
                "Gap Online",
                "Gap Outlet",
@@ -233,6 +262,7 @@
                "Chungdam",
                { "Co Rungrueang": "Co Limited TH" },
                "Cocohodo",
+               "COPENHAGEN SAUSAGE",
                "Crepevine",
                "Cinnabon",
                "City Fish",
@@ -264,7 +294,7 @@
                "Gelato Classico",
                "Gilroy Gardens Food",
                "Gimme Some Sugar ConcOregon",
-               "Gochi Japanese Tapas",
+               "Gochi",
                "Gong Cha",
                "Gopizza-Cosmo Bazaar",
                "Gott S Roadside",
@@ -316,6 +346,7 @@
                "Marufuku Ramen",
                "Marugame Udon",
                "Matcha Cafe Maiko",
+               "Matcha Town",
                { "MC-00280 SVB Airport" : "McDonald in BKK airpot" },
                { "MCD-00280SVB" : "McDonald in BKK airpot" },
                "McDonald",
@@ -361,6 +392,7 @@
                "Postmates",
                "Ramen Izak",
                { "Rayjin Ubud": "Food in Bali 2024" },
+               "Ren Tea",
                "Rita",
                "Rokko",
                "Rong Bien Restaurant",
@@ -410,6 +442,7 @@
                "Thai Basil",
                "Thai Spoons",
                "Thai Square",
+               "THAI TIME NORTHPARK",
                "The Eatery Truckee",
                "The Greek Spot",
                "Tiger Sugar",
@@ -487,6 +520,7 @@
                "CVS",
                "Camino Pharmacy",
                "Eye City Optometry",
+               "Hims",
                "iSmile Dental Clinic Bangkok TH",
                "iSmile Dental - Sunny",
                "Medpark Hospital",
@@ -596,7 +630,6 @@
                "Great America",
                "GuardianBikes",
                "Guitar Center",
-
                "ICP Gold Star Gymnastics",
                { "IMG Insurance" : "Travel Insurance" },
                "Indiegogo",
@@ -668,6 +701,8 @@
                { "SMM Plus" : "Siam Intercomics" },
                { "Soccer Shots Bay Area" : "Tisha's soccer class" },
                { "SP Atlas Headrest" : "Herman Miller Headrest" },
+               { "SP Particula": "Board Game" },
+               { "SP Sindenship": "Sinden Lightgun" },
                "Spirit Halloween",
                "Springer",
                "SkullNCo",
@@ -696,6 +731,7 @@
                "Turbotax",
                "U-Haul",
                "Udemy",
+               { "UEP Taning Synnyvale": "Tea" },
                { "Umbrella Entertainmen" : "Fleet Week in SF" },
                "UPS",
                { "Usborne Books" : "Sunnyvale Christian School bookfair" },
@@ -768,6 +804,8 @@
                "Parkingcom",
                "Roaring Camp",
                "San Francisco Zoo",
+               "Sea World",
+               "Seaworld",
                "SingaporeAir",
                { "SWA EARLYBRD": "Southwest Earlybird Checkin" },
                { "Southwes" : "SouthWest Airlines" },
@@ -775,7 +813,8 @@
                "Thai Airways",
                "The Ritz Carlton",
                "TURK EDEBIYAT VAKFI ISLETISTANBUL",
-               "WoodenShoe.com"
+               "WoodenShoe.com",
+               { "Zootique": "San Diego Zoo" }
             ],
             "Subscription" : [
                "Adobe",
@@ -786,6 +825,7 @@
                "Audible",
                { "B&amp;N Membership Renewal" : "BN membership fee" },
                "Blinkist",
+               "CLAUDE",
                "Comcast",
                "CuriosityStream",
                "Evernote",
@@ -853,8 +893,10 @@
                "Interest Payment"
             ],
             "Insurance" : [
+               "AGI Renters",
+               "Allianz Life Ins",
                "American Gen Lif Ins",
-               "Allianz Life Ins"
+               "RLI Insurance Company"
             ],
             "Online Shopping" : [
                "ATT Payment",
@@ -889,7 +931,8 @@
             "Transportation" : [
                "Toyota Financial Retail",
                "Toyota Sunnyvale",
-               "ST OF CA DMV"
+               "ST OF CA DMV",
+               "Waymo"
             ],
             "Tuition" : [
                { "BB Tuition Mgmt": "Russian School of Math" },
