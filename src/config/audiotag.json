@@ -10,7 +10,7 @@
          "Extract" : "."
       },
       "Convert" : {
-         "Supported Formats" : [ ".aif", ".aiff", ".ape", ".wav" ]
+         "Supported Formats" : [ ".aif", ".aiff", ".ape", "m4a", ".wav" ]
       },
       "Cleanup" : {
          "Allowed Formats" : [ ".pdf", ".jpeg", ".jpg", ".png", ".tif" ],

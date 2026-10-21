@@ -25,6 +25,7 @@ from mutagen.aiff import AIFF
 from mutagen.apev2 import APEv2File
 from mutagen.flac import FLAC, Picture
 from mutagen.dsf import DSF
+from mutagen.mp4 import MP4
 from mutagen.wave import WAVE
 from mutagen.id3 import ID3, TRCK, TIT2, TPE1, TALB, TPE2, TPOS, PictureType
 from pydub import AudioSegment
@@ -478,6 +479,7 @@ class Album(TextSanitizer):
       headers = ["Track", "Artist", "Title", "Cover", "Filename"]
       if len(self.disc) > 1:
          for disc, flacs in self.disc.items():
+            # TODO: this logic doesn't work
             disc_folder_found = False
             for disc_folder in ["CD", "Disc "]:
                disc_folder += str(disc)
@@ -881,7 +883,9 @@ class ConvertCmd(BaseCmd):
    def get_format(self):
       """Determine the file format from the filename"""
       ext = self.filename.suffix[1:]
-      return ext if ext != "aif" else "aiff"
+      if ext == "aif":
+         return "aiff"
+      return ext.lower()
 
    def get_tags(self):
       """Get ID3 tags from the audio file"""
@@ -889,25 +893,42 @@ class ConvertCmd(BaseCmd):
 
    def get_album_art(self):
       """Return the album art stored in the file"""
-      if self.format not in ["aiff", "wav"]:
+      if self.format not in ["aiff", "m4a", "wav"]:
          # Unable to copy album art from .ape
          return None
 
-      metadata = WAVE(self.filename) if self.format == "wav" else AIFF(self.filename)
-      if not metadata:
+      try:
+         if self.format == "wav":
+            metadata = WAVE(self.filename)
+         elif self.format == "aiff":
+            metadata = AIFF(self.filename)
+         elif self.format == "m4a":
+            metadata = MP4(self.filename)
+         else:
+            return None
+      except:
+         # Catch all the reasons that mutagen cannot parse the tags in the
+         # audio file
          return None
+
+      if metadata.tags is None:
+         return None
+
       apic = None
       if "APIC:" in metadata.tags:
-         apic = metadata.tags.get("APIC:")
+         apic = metadata.tags["APIC:"].data
       elif "APIC:Picture" in metadata.tags:
-         apic = metadata.tags.get("APIC:Picture")
+         apic = metadata.tags["APIC:Picture"].data
+      elif "covr" in metadata.tags:
+         # For m4a
+         apic = metadata.tags["covr"][0]
       else:
          return None
 
       pic = Picture()
       pic.type = PictureType.COVER_FRONT
       pic.desc = "Front cover"
-      pic.data = apic.data
+      pic.data = apic
       pic.mime = "image/jpeg"
       return pic
 
@@ -1122,9 +1143,9 @@ class CleanupCmd(BaseCmd):
             field = obj.group(1)
             field_dict[field] = count
             if field == "track":
-               regex = regex.replace("%{" + field + "}", "(\d+)")
+               regex = regex.replace("%{" + field + "}", r"(\d+)")
             else:
-               regex = regex.replace("%{" + field + "}", "([\w\. ?'&]+)")
+               regex = regex.replace("%{" + field + "}", r"([\w\. ?'&]+)")
             count += 1
             obj = re.search(r"%{(.*?)}", regex)
 
@@ -1213,7 +1234,7 @@ class CleanupCmd(BaseCmd):
          while obj:
             field = obj.group(1)
             field_index[field] = count
-            src = src.replace("%{" + field + "}", "([\w\. ?'&]+)")
+            src = src.replace("%{" + field + "}", r"([\w\. ?'&]+)")
             count += 1
             obj = re.search(r"%{(.*?)}", src)
 
@@ -1372,7 +1393,7 @@ class CleanupCmd(BaseCmd):
             },
             ("rea", "ret"): {
                "desc": "Retain a part of the artist or title of all files using regex "
-               ": ret \d* - (.*) \(.*",
+               r": ret \d* - (.*) \(.*",
                "func": cmd_set_track_regex,
             },
             ("ref",): {
